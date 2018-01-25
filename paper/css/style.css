@@ -74,41 +74,54 @@ header p {
 	border-left: 2px var(--blue) solid;
 }
 #main-content p{
-padding:0px 10vw 80px 10vw	;
-	 border-bottom: 3px solid #17bed2;
+padding:10px 10vw 10px 10vw	;
+	margin: 10px;
+/*	 border-bottom: 3px solid #17bed2;*/
 }
-#main-content h1{
+#main-content h2{
 	width: 60vw;
 	
-padding-left: 10vw	;
+padding-left: 60px	;
 	padding-right: 10vw	;
 	color:var(--blue);
-	font-size: 120px;
+	font-size: 100px;
+	line-height: 120px;
     font-family: 'Oranienbaum', serif;
     font-weight: 500;
+	margin-bottom: 20px;
 }
 
-#main-content h2 {
+#main-content h3 {
     font-weight: 500;
     color: #333333;
     font-size: 26px;
-    width: 180px;
-   padding-left: 10vw	;
+	margin-left: 20px;
+/*   padding-left: 30px;*/
 	padding-right: 10vw	;
     border-bottom: 3px solid #17bed2;
     display: inline-block;
 }
 #main-content ul {
-	padding-left: 10vw	;
-	padding-right: 10vw	;
 line-height: 30px;
 	font-size: 18px;
 	margin-top:  0;
 	
 }
 .fotorama{
-	border-top: 3px solid var(--bgbody);
+	width: 50%;
+	display: inline-block;
 	background-color: var(--bgcontent);
+}
+.text	{
+	
+	padding-left: 40px;
+	height: 100%;
+	width: 40%;
+	display: inline-block;
+}
+.block{
+	padding-top:  0;
+	padding-bottom: auto;
 }
 ::-webkit-scrollbar {
   width: 0.25em;
