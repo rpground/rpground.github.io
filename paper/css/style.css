@@ -1,0 +1,127 @@
+:root {
+	--black: black;
+	--blue: #179cb2; /*#111;*/
+  --bgbody: #111411; /*	#ed6600*/
+	--bgcontent: #e7e7e7;
+	--text:	#eee; /*	#ed6600*/
+	--orange: #ed6600;
+}
+
+html {
+  background-color:  var(--bgbody);
+	font-family: 'Open Sans', sans-serif;
+  font-weight: 900;
+	font-size: 24px;
+	color: #eee;
+
+
+}
+html,
+body {
+  overflow-x: hidden;
+	margin: 0;
+}
+header p {
+	color: #eee;
+	position: fixed;
+	margin-top: 16px;
+	margin-left: 90px;
+	
+}
+
+
+
+#main-leftmenu{
+	position: fixed;
+	width: 75px;
+	height: 100vh;
+	background-color: var(--black);
+	border-right: 4px var(--blue) solid;
+
+}
+.main-leftmenu-box{
+	
+	cursor: pointer;
+	width: 75px;
+	height: 75px;
+	padding: 20px;
+	box-sizing: border-box;
+	text-align: center;
+	transition-duration: .2s;
+}
+.main-leftmenu-box:hover{
+	border-right: 1px var(--blue) solid;
+	border-bottom: 4px var(--blue) solid;
+	background-color: #555;
+	transition-duration: .2s;
+}
+.main-leftmenu-box i{
+	font-size: 20px;
+	color: #eee;
+}
+
+#main-content{
+	width: 60vw;
+	float: right;
+	background-color: var(--bgcontent);
+	font-family: 'Roboto', serif;
+  font-weight: 300;	
+	color: #444;
+	font-size: 20px;
+  line-height: 40px;
+	
+	box-sizing: border-box;
+	border-left: 2px var(--blue) solid;
+}
+#main-content p{
+padding:0px 10vw 80px 10vw	;
+	 border-bottom: 3px solid #17bed2;
+}
+#main-content h1{
+	width: 60vw;
+	
+padding-left: 10vw	;
+	padding-right: 10vw	;
+	color:var(--blue);
+	font-size: 120px;
+    font-family: 'Oranienbaum', serif;
+    font-weight: 500;
+}
+
+#main-content h2 {
+    font-weight: 500;
+    color: #333333;
+    font-size: 26px;
+    width: 180px;
+   padding-left: 10vw	;
+	padding-right: 10vw	;
+    border-bottom: 3px solid #17bed2;
+    display: inline-block;
+}
+#main-content ul {
+	padding-left: 10vw	;
+	padding-right: 10vw	;
+line-height: 30px;
+	font-size: 18px;
+	margin-top:  0;
+	
+}
+.fotorama{
+	border-top: 3px solid var(--bgbody);
+	background-color: var(--bgcontent);
+}
+::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--blue);
+}
+
+::-webkit-scrollbar-track {
+  background: #b8c0c8;
+}
+::-webkit-scrollbar-button {
+  background: var(--blue);
+}
