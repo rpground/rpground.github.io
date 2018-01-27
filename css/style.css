@@ -7,8 +7,7 @@
 	--orange: #ed6600;
 }
 
-a:hover,
-a{
+a {
   text-decoration: none!important;
 }
 
@@ -31,7 +30,6 @@ header p {
 	position: fixed;
 	margin-top: 16px;
 	margin-left: 90px;
-	
 }
 
 
@@ -53,6 +51,9 @@ header p {
 	text-align: center;
 	transition-duration: .2s;
 	margin-left: auto;
+}
+.main-leftmenu-box a {
+  color: #fff;
 }
 .main-leftmenu-box:hover{
 	border-right: 1px var(--blue) solid;
