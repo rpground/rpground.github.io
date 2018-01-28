@@ -63,9 +63,7 @@
 			<i class="icon-angle-right"></i>
 		</div>
 	
-	</div>
-
-	
+	</div>	
 	
 <div id="main-content">
 	<div class="main-content-header" style="background-image: url('img/2.png')">
@@ -75,6 +73,17 @@
 				<span>демо, проекты, игры</span></h1></a>
 			</div>		
 		</div>
+	</div>
+	<div class="search">
+		
+	<button class='button' id='engine'>Движок</button>
+	<button class='button' id = 'year'>Год </button>
+	<button class='button'>Поиск</button>
+	<button class='button'>Поиск</button>
+	<button class='button'>Поиск</button>
+	<button class='button'>Поиск</button>
+	<button class='button'>Поиск</button>
+	<button class='button'>Поиск</button>
 	</div>
 	<div class="main-content-box">
 		<div class="fotorama" 
@@ -162,16 +171,97 @@
 			</ul>
 		</div>
 	</div>	
+	<ul class="list">
+    <li class="list__item">
+      <label class="label--checkbox">
+          <input type="checkbox" class="checkbox" checked>
+            Хоррор
+      </label>
+    </li>
+    <li class="list__item">
+      <label class="label--checkbox">
+          <input type="checkbox" class="checkbox">
+            Паззлы
+      </label>
+    </li>
+    <li class="list__item engine ">
+      <label class="label--checkbox">
+          <input type="checkbox" class="checkbox">
+            RPG Maker VX Ace
+      </label>
+    </li>
+    <li class="list__item engine">
+      <label class="label--checkbox MV">
+          <input type="checkbox" class="checkbox">
+            RPG Maker MV
+      </label>
+    </li>
+  </ul>		
+	 
+	   
 </div>
+
 		
 
+   			
+<!--
+<div class="list">
+	<div class="item">Хоррор</div>
+	<div class="item engine">RPG Maker VX Ace</div>
+	<div class="item">Паззлы</div>
+	<div class="item engine">RPG Maker MV</div>
+	<div class="item">Новелла</div>
+	<div class="item">Экшен</div>
+</div>
+-->
 
-	<section id="footer">
+<section id="footer">
 		
 	</section>
 	
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="fotorama-4.6.4/fotorama.js"></script>
+
+
+<script>
+//	var buttonEngine = $('.button:contains("Движок")'),
+	var item = $('.item'),
+			list = $('.list__item'),
+    engine = $('.engine');
+	 
+
+$('#engine').on('click', function () {
+	
+	if ($('.list').is(":visible")){
+		$('.list').hide()}
+	else $('.list').show();
+//	$('.list').offset({top:625, left:740});
+	item.addClass('hide');
+	engine.removeClass('hide');
+    // Отсортируем видимые блоки в начало DOM дерева
+    item.sortElements(function (a, b) {
+        return $(a).hasClass('hide') > $(b).hasClass('hide') ? 1 : -1;
+    });
+});
+//	$('#year').on('click', function () {
+//	
+//	if ($('.list').is(":visible")){
+//		$('.list').hide()}
+//	else $('.list').show();
+//	$('.list').offset({top:625, left:740});
+//	item.addClass('hide');
+//	engine.removeClass('hide');
+//    // Отсортируем видимые блоки в начало DOM дерева
+//    item.sortElements(function (a, b) {
+//        return $(a).hasClass('hide') > $(b).hasClass('hide') ? 1 : -1;
+//    });
+//});
+	
+//	if($(".MV").prop('checked') ) { 
+//        window.alert('Дайте свое согласие на обработку данных!');
+//        return false;
+//    }
+</script>
 
 </body>
 </html>

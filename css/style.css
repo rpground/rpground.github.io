@@ -14,7 +14,7 @@ a {
 html {
   background-color:  var(--bgbody);
 	font-family: 'Open Sans', sans-serif;
-  font-weight: 900;
+  font-weight: 400;
 	font-size: 24px;
 	color: #eee;
 
@@ -108,7 +108,7 @@ header p {
   width: 100%;
   background: no-repeat center center;
   background-size: cover;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .main-content-header-tittle {
 	text-align: center;
@@ -196,7 +196,7 @@ line-height: 24px;
 }
 .main-content-box{
 	max-width: 60vw;
-	margin: 100px auto auto auto;
+	margin: 100px auto 120px auto;
 	
 }
 .fotorama{
@@ -230,4 +230,176 @@ line-height: 24px;
 }
 ::-webkit-scrollbar-button {
   background: var(--blue);
+}
+
+
+.button {
+  border: none;
+  background: transparent;
+  padding: 0 24px;
+	margin-bottom: 10px;
+  font-size: 18px;
+  line-height: 40px;
+/*	width: 90px;*/
+	text-align: left;
+  border-radius: 5px;
+	border: 2px solid #4AB9F2;
+  position: relative;
+  color: #3E4651;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+	-webkit-transition: width 0.3s ease-in-out;
+  transition: width 0.3s ease-in-out;
+	text-transform: uppercase;
+  transition: 0.5s;
+  overflow: hidden;
+}
+
+.button:hover {
+	background: #4AB9F2;
+	color: #fff;
+  border: 2px solid #4AB9F2;
+  -webkit-transition:  0.3s ease-in-out;
+  transition:  0.3s ease-in-out;
+	-webkit-box-shadow: 0 10px 90px -2px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 10px 90px -2px rgba(0, 0, 0, 0.2);
+}
+
+
+.hide {
+  display: none !important;
+}
+
+.visible{
+	display: block;
+}
+.list {
+	display: none;
+/*  margin: .5rem;*/
+	width: 10rem;
+	position: absolute;
+/*  margin: -4rem auto 0 auto;*/
+  padding: 1rem;
+  background: #fff;
+  border-radius: 0.125rem;
+  box-shadow: 0 0.125rem 0.3125rem 0 rgba(0, 0, 0, 0.25);
+	font-size: 16px;
+	-webkit-animation-duration: 0.4s;
+  animation-duration: 0.4s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: slideUp;
+  animation-name: slideUp;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.list__item {
+  margin: 0 0 .5rem 0;
+  padding: 0;
+	color: #000;
+	 list-style-type: none;
+}
+
+.label--checkbox {
+  position: relative;
+  margin: .5rem;
+  font-family: Arial, sans-serif;
+  line-height: 135%;
+  cursor: pointer;
+}
+
+.checkbox {
+  position: relative;
+  top: -0.375rem;
+  margin: 0 1rem 0 0;
+  cursor: pointer;
+}
+.checkbox:before {
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  content: "";
+  position: absolute;
+  left: 0;
+  z-index: 1;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #f2f2f2;
+}
+.checkbox:checked:before {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  height: .5rem;
+  border-color: var(--blue);
+  border-top-style: none;
+  border-right-style: none;
+}
+.checkbox:after {
+  content: "";
+  position: absolute;
+  top: -0.125rem;
+  left: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.button--round {
+  -webkit-transition: 0.3s background ease-in-out;
+  -moz-transition: 0.3s background ease-in-out;
+  transition: 0.3s background ease-in-out;
+  width: 2rem;
+  height: 2rem;
+  background: var(--blue);
+  border-radius: 50%;
+  box-shadow: 0 0.125rem 0.3125rem 0 rgba(0, 0, 0, 0.25);
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+}
+.button--round i {
+  font-size: 1rem;
+  line-height: 220%;
+  vertical-align: middle;
+}
+.button--round:hover {
+  background: #3b50ce;
+}
+
+.button--sticky {
+  position: fixed;
+  right: 2rem;
+  top: 16rem;
+}
+
+/*
+.content {
+  
+}
+*/
+
+@-webkit-keyframes slideUp {
+  0% {
+    -webkit-transform: translateY(6.25rem);
+    transform: translateY(6.25rem);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+@keyframes slideUp {
+  0% {
+    -webkit-transform: translateY(6.25rem);
+    transform: translateY(6.25rem);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
 }
