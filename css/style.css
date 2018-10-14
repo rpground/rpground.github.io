@@ -90,8 +90,8 @@ header p {
 
 #main-content{
 	width: auto;
-/*	margin-left: 75px;*/
-	margin-left: 40vw;
+	margin-left: 75px;
+/*	margin-left: 40vw;*/
 	margin-right: 0;
 	background-color: var(--bgcontent);
 	font-family: 'Roboto', serif;
@@ -99,7 +99,6 @@ header p {
 	color: #444;
 	font-size: 20px;
   line-height: 40px;
-	
 	box-sizing: border-box;
 	border-left: 2px var(--blue) solid;
 }
