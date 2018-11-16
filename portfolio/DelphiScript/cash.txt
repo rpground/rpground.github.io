@@ -1,0 +1,394 @@
+uses uMain, uOracleDB, uUtils, TradeServiceAction, uTSPos, uFireBird;    
+
+//делаем программу "тс пос" активным
+//вместо      p := Sys.Process('Cash');      
+//пишем       p := pCash; 
+function pCash: string;
+var 
+  p,w: OleVariant;
+begin
+  try
+     Result := Sys.Process('Cash');  
+  except
+     Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+
+//возвращаем название окна
+//p := Sys.Process('Cash'); 
+//w := p.Window('TfrmMain', '*');
+//вместо этого пишем w := Cash;
+function Cash: string;
+var 
+  p, w: OleVariant;
+begin
+  try
+     p := pCash; 
+     Result := p.Window('TfrmMain', '*');  
+  except
+     Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+
+//делаем окно тс пос активным    
+procedure ActiveCash;
+var 
+  p, w: OleVariant;
+begin
+  try
+     Cash.Activate; 
+  except
+     Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+                              
+// Вход в систему 
+procedure LogInCash;
+var
+  p, w, m, vCounter: OleVariant;
+begin
+  //вход на кассу
+  p := TestedApps.Items[1].Run;
+  If Not p.Exists Then
+    Log.Error('Exception', 'Не удалось запустить приложение');
+  
+  //проверка активности формы ввода логина и пароля 
+  w := Cash;
+  m := w.WaitWindow('TcxCustomInnerTextEdit', '*', 1, 120000);
+  
+  //если форма ввода активна, то вводим логин и пароль
+  if m.Exists then                              
+  begin  
+    w.Activate;
+    Sys.Keys('kassa[Tab]123456[Enter]');
+    Sys.Delay(1000);
+  end 
+  else
+    Log.Message('превышено время ожидания загрузки TS POS')    
+end;
+
+//Выход из приложения Cash
+procedure LogOutCash;
+var
+  p, w,m: OleVariant;
+begin
+  w := Cash;
+  w.Activate;
+  Sys.Delay(9000);
+  Sys.Keys('~[F4]'); 
+  p := pCash;
+  w :=  p.Window('TfrmConfirm', 'ПОДТВЕРДИТЕ!');
+  m := w.WaitWindow('TPanel', '*', 1, 90000);
+  //если форма ввода активна
+  if m.Exists then
+  begin
+    Sys.Delay(6000);                              
+    p.Window('TfrmConfirm', 'ПОДТВЕРДИТЕ!').Activate;
+    Sys.Keys('[Enter]');
+  end;  
+end;
+
+//закрытие окна "клиентом зарезервировано бонусов"
+procedure CloseReserveBonusWindowInCash;
+var
+  p, w: OleVariant;
+begin 
+  p := pCash; 
+  w := p.Window('TfrmConfirm', 'ПОДТВЕРДИТЕ!');
+  w.Activate;
+  Sys.Delay(1000); 
+  Sys.Keys('[Enter]');
+  Sys.Delay(1000);
+  
+  //подтверждаем кол-во бонусов
+  w := Cash;  
+  w.Activate;
+  Sys.Delay(1000);
+  Sys.Keys('[Enter]');
+  Sys.Delay(2000); 
+  
+  //Закрытие окна "транзакции" (пока не надо)
+  //w := p.Window('TMessageForm', 'TS POS');
+  //w.Activate;
+  //w.Window('TButton', 'OK').Click;
+  //Sys.Delay(2000);
+end;  
+
+//поиск веб-заявки на кассе
+procedure SearchWebInCash(vWebOrder:String);
+var
+  p, w: OleVariant;
+begin                                           
+  w := Cash; 
+  Sys.Delay(1000); 
+  Sys.Keys('^3');
+  Sys.Delay(100);
+  Sys.Keys(vWebOrder); 
+  Sys.Delay(1000); 
+  Sys.Keys('[Enter]');  
+  Sys.Delay(20000);    
+end;   
+
+procedure PayCredit;
+var 
+  p,w,m: OleVariant; 
+  vZORDR: string;
+begin
+  try
+    //Выбираем оплату кредит
+    ActiveCash; 
+    Sys.Keys('^2');
+    Sys.Delay(2000); 
+    p := pCash;
+    w := p.Window('TfrmMedia', 'frmMedia');
+    w.Activate;
+    Sys.Keys('[Down][Down][Enter]');
+    ActiveCash;
+  
+    //Вносим данные
+    Sys.Keys('[Enter]1234[Enter]12[Enter]');    
+  except
+      Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+
+// Добавление бонусной карты в программу лояльности  на кассе 
+procedure LoyaltyBonusInCash(vCardNumber:String);
+var
+  p, w: OleVariant;
+begin                                           
+  w := Cash;
+  w.Activate;
+
+  Sys.Delay(2000); 
+  Sys.Keys(vCardNumber); 
+  Sys.Delay(1000); 
+  Sys.Keys('[Enter]');
+  Sys.Delay(1000);
+   
+end;   
+
+//Оплата бонусной картой  на кассе 
+
+procedure PayBonusInCash(vCardNumber, vSumCard:String);
+var
+  p, w: OleVariant;
+  sum: string;
+begin                                           
+  w := Cash;
+  w.Activate; 
+  Sys.Delay(2000); 
+  
+  Sys.Keys(vCardNumber);
+  Sys.Delay(2000);  
+  Sys.Keys('[Enter]');
+  Sys.Delay(2000);
+  
+  Sys.Keys(vSumCard); 
+  Sys.Delay(1000);
+  Sys.Keys('[Enter]'); 
+  Sys.Delay(1000);
+ 
+end;
+   
+//Оплата подарочной картой
+procedure PayGiftInCash(vCardNumber, vSumCard:String);
+var
+  p, w: OleVariant;
+  sum: string;
+begin                                           
+  w := Cash;
+  w.Activate; 
+  Sys.Delay(1000); 
+  
+  Sys.Keys(vCardNumber);
+  Sys.Delay(1000);  
+  Sys.Keys('[Enter]');
+  Sys.Delay(1000);
+  
+  Sys.Keys('[BS]');
+  Sys.Keys(vSumCard); 
+  Sys.Delay(1000);
+  Sys.Keys('[Enter]'); 
+  Sys.Delay(1000);
+ 
+end;   
+
+// Оплата наличными  на кассе
+// если аргумент отрицательный, то значит оплата со сдачей 
+// если 'max' то не меняем сумму вычисленную кассой
+procedure PayMoneyInCash(vSum:String);
+var
+  p, w: OleVariant;
+  d: Number;
+begin                                           
+  w := Cash;
+  w.Activate;
+    
+  Sys.Keys('[F9]');      
+  Sys.Delay(1000);
+  
+  //оплата со сдачей если первый символ минус
+  if vSum[1] = '-' then
+  begin
+    Sys.Keys('^c');  
+    d:= StrToInt(Sys.Clipboard) - StrToInt(vSum);
+    Sys.Keys(d);
+  end
+
+  //пишем переданную через параметр сумму
+  else if (vSum <> 'max')   then  
+    Sys.Keys(vSum);
+
+  //оставляем всю сумму для оплаты наличкой 
+  Sys.Delay(100);
+  Sys.Keys('[Enter]');  
+  Sys.Delay(1000); 
+end;
+
+
+//Оплата банковской картой  на кассе 
+procedure PayBankInCash(vSum:String);
+var
+  p, w: OleVariant;
+begin                                           
+  w := Cash;
+  w.Activate;
+    
+  Sys.Keys('^1');                                               
+  Sys.Keys('[Enter]');    
+  Sys.Delay(500);
+  Sys.Keys(vSum);
+  Sys.Keys('[Enter]');
+  Sys.Delay(1000);
+end;  
+
+//Оплата купоном на кассе
+procedure PayCouponInCash(vCardNumber, vCardPin:String);
+var
+  p, w: OleVariant;
+begin                                           
+  w := Cash;
+  w.Activate;
+    
+  Sys.Keys(vCardNumber);
+  Sys.Delay(1000);  
+  Sys.Keys('[Enter]');  
+  Sys.Delay(1000);
+  Sys.Keys(vCardPin);
+  Sys.Delay(100); 
+  Sys.Keys('[Enter]');  
+  Sys.Delay(1000); 
+end;
+
+//закрытие окошек транзакций
+procedure CloseTransaction(vTransaction: String);
+var 
+  p, w, m: OleVariant;
+  vDelay: String; 
+begin
+  try
+    //в зависимости от транзакций меняем дилей
+    case vTransaction of                     
+      '301' : vDelay := '20000'; 
+      '201' : vDelay := '80000';
+      '101' : vDelay := '20000';
+    end;    
+  
+    p := pCash;
+    w := p.WaitWindow('TMessageForm', '*', 1, vDelay);
+    if w.Exists then                              
+      w := p.Window('TMessageForm', '*')
+    else
+      Log.Error('Exception', 'Транзакция не выполнена');
+                      
+    w.Window('TButton', 'OK').Click;   
+   
+    //если 101 траназкция то значит сейчас напечатается чек, а потому вставляем паузу
+    if (vTransaction = '101') then
+      Sys.Delay(14000);   
+  except
+      Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+  
+//Печать чека на кассе
+procedure PayInCash;
+var                         
+  p, w: OleVariant;
+begin                      
+  w := Cash;
+  w.Activate; 
+  Sys.Delay(1000); 
+  Sys.Keys('[F8]');
+  
+  //закрытие окон "выполнение транзакции"
+  //транзакция 301
+  CloseTransaction('301');
+  //транзакция 201                                                       
+  CloseTransaction('201'); 
+  //транзакция 101                                    
+  CloseTransaction('101');                      
+end;  
+
+//Сторно оплаты 
+//vCheck - номер чека (его мы можем найти через функции GetCheck...)
+procedure StornoPayInCash(vCheck: String; vTransaction: Number = 1);
+var
+  p, w: OleVariant;
+begin 
+  w := Cash;
+  w.Activate;
+  Sys.Delay(1000); 
+  Sys.Keys('^f');                   
+  Sys.Delay(4000); 
+  Sys.Keys(vCheck);
+  Sys.Delay(5000);
+  Sys.Keys('[Enter]');
+  Sys.Delay(5000); 
+  Sys.Keys('^s');
+  Sys.Delay(1000);
+  Sys.Keys('[Enter]');  
+  Sys.Delay(5000);
+
+  //если стоит единица, то не проверяем транзакции
+  if (vTransaction = 0) then
+    Exit; 
+  //закрытие окон "выполнение транзакции" 303
+  p := pCash;
+  w := p.WaitWindow('TMessageForm', '*', 1, 80000);
+  if w.Exists then                              
+    w := p.Window('TMessageForm', '*')
+  else
+    Log.Error('Exception', 'Транзакция 303 не выполнена');
+
+  w.Window('TButton', 'OK').Click;  
+  Sys.Delay(1000);
+end;  
+
+//Сторно вдс
+procedure StornoRefundsInCash(vOrder);
+var
+  p, w, vCheck: OleVariant;
+begin
+  w := Cash;
+  w.Activate;
+  Sys.Delay(1000); 
+  Sys.Keys('^f');
+  vCheck := GetCheckRefunds(vOrder);
+  Sys.Delay(1000); 
+  Sys.Keys(vCheck);
+  Sys.Delay(1000);
+  Sys.Keys('[Enter]');
+  Sys.Delay(1000); 
+  Sys.Keys('^s');
+  Sys.Delay(5000);     
+  
+  //закрытие окон "выполнение транзакции"
+  {Sys.Delay(7000);  
+  w := p.Window('TMessageForm', 'TS POS'); 
+  w.Activate;                    
+  w.Window('TButton', 'OK').Click; 
+  Sys.Delay(2000);}
+end;  
+

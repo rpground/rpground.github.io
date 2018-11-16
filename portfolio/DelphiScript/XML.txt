@@ -1,0 +1,251 @@
+uses uMain, uOracleDB, uUtils, TradeServiceAction, uTSPos, uFireBird;
+
+//пересохранить ХМЛ-файл в определенное место 
+procedure SaveAsXml(LoadDoc, SaveAsDoc: string);
+var            
+   Doc: OleVariant;
+begin
+  //Создание COM-объекта 
+  Doc := Sys.OleObject('Msxml2.DOMDocument.6.0');  
+  Doc.async := false;
+  
+  //Загрузка данных из файла 
+  //Мы используем файл, созданный ранее
+  Doc.load(LoadDoc);                
+  
+  //Сохранение файла в определенное место с определенным названием                          
+  Doc.save(SaveAsDoc);
+  Sys.Delay(1000);    
+end;                                
+                                   
+//вывести в лог текст внутри определенного тега  
+procedure LogNodesText(Tag,DocName: string);          
+var
+   Nodes, TagName, Doc: OleVariant;
+   i: integer;
+begin
+  //Создание COM-объекта 
+  Doc := Sys.OleObject('Msxml2.DOMDocument.6.0');
+  Doc.async := false;
+  
+  //Загрузка данных из файла 
+  //Мы используем файл, созданный ранее
+  Doc.load(DocName); 
+  
+  //Проверка содержание текста в каждом из тегов 
+  TagName := '//' + Tag;
+  for i := 0 to Doc.selectNodes(TagName).length-1 do
+  begin
+    //Сохраняем текст в переменную
+    Nodes := Doc.selectNodes(TagName).item(i).text;  
+    //Вывод в лог
+    Log.Message(Tag + ': ' + Nodes); 
+  end;            
+end;
+   
+//возвратить текст внутри первого определенного тега 
+function GetNodesText(Tag,DocName: string; i: string = '0'): string;          
+var
+   Nodes, TagName, Doc: OleVariant;   
+begin
+  //Создание COM-объекта 
+  Doc := Sys.OleObject('Msxml2.DOMDocument.6.0');
+  Doc.async := false;
+  
+  //Загрузка данных из файла 
+  //Мы используем файл, созданный ранее
+  Doc.load(DocName); 
+  
+  //Проверка содержание текста в каждом из тегов 
+  TagName := '//' + Tag;
+  //Сохраняем текст в переменную
+  Nodes := Doc.selectNodes(TagName).item(i).text;  
+  //Вывод в лог
+  Result := Nodes;          
+end;
+
+//заменить текст внутри всех указанных тегов   
+procedure ChangeNodesText(Tag, TagText, DocName: string);
+var
+   Nodes, TagName, Doc: OleVariant;
+   i: integer;
+begin
+  //Создание COM-объекта 
+  Doc := Sys.OleObject('Msxml2.DOMDocument.6.0');
+  Doc.async := false;
+  
+  //Загрузка данных из файла 
+  //Мы используем файл, созданный ранее
+  Doc.load(DocName); 
+  
+  //Проверка содержание текста в каждом из тегов 
+  TagName := '//' + Tag;
+  for i := 0 to Doc.selectNodes(TagName).length-1 do
+  begin
+    //Заменить содержание текста внутри тега на нужный.
+    Doc.selectNodes(TagName).item(i).text := TagText;
+    Nodes := Doc.selectNodes(TagName).item(i).text;  
+    //Вывод в лог
+    Log.Message(Tag + ': ' + Nodes); 
+  end;     
+  
+  //пересохраняем документ
+  Doc.save(DocName);           
+end;
+
+//заменить текст внутри только тех указанных 
+//тегов, в которых содержится определенный текст
+//-- если vReturn = 1 то цикл прерывается после нахождения первого совпадения
+procedure ChangeNodesTextToText(Tag, TagTextFirst, TagTextNew, DocName: string; vReturn: string = '0');
+var
+   Nodes, TagName, Doc, n: OleVariant;
+   i: integer;
+begin
+  //Создание COM-объекта 
+  Doc := Sys.OleObject('Msxml2.DOMDocument.6.0');
+  Doc.async := false;
+  
+  //Загрузка данных из файла 
+  //Мы используем файл, созданный ранее
+  Doc.load(DocName); 
+  
+  //Проверка содержание текста в каждом из тегов 
+  TagName := '//' + Tag;
+  for i := 0 to Doc.selectNodes(TagName).length-1 do
+  begin
+    if GetNodesText(Tag,DocName,i) = TagTextFirst then
+    begin
+      //Заменить содержание текста внутри тега на нужный.
+      Doc.selectNodes(TagName).item(i).text := TagTextNew;
+      Nodes := Doc.selectNodes(TagName).item(i).text;  
+      //Вывод в лог
+      Log.Message(Tag + ': ' + Nodes);
+      if (vReturn = '1') then
+        Break;
+    end;
+  end;     
+  
+  //пересохраняем документ
+  Doc.save(DocName);           
+end;
+
+//добавить текст в конец файла
+procedure AddText(Text, DocName: string);
+const                 
+  ForAppending = 8;
+  TristateFalse = 0;
+var
+   fs, objFile, f: OleVariant;  
+begin
+  //Открываем текстовый файл        
+  fs := Sys.OleObject('Scripting.FileSystemObject');
+  if not fs.FileExists(DocName) then 
+  begin 
+    objFile := fs.CreateTextFile(DocName);
+    objFile.Close();
+  end;
+  
+  //записывам текст в конце файла                                                     
+  f := fs.OpenTextFile(DocName, ForAppending, TristateFalse);
+  f.Write(Text);
+  f.Close();
+end;  
+
+//Возврат текущей даты
+//Если параметр format=1, то перевод формата даты "чч.мм.гггг" в "гггг.мм.чч"
+//Если deleteSymbol=1, то убираем точки из формата записи
+function AddData(format, deleteSymbol: integer=0): String;
+var
+   today: TDataTime; 
+   Data: String;
+begin
+   today := Now;     
+   Data:=DateToStr(today);
+   
+   //смена формата даты "чч.мм.гггг" в "гггг.мм.чч"
+   if format=1 then
+     Data:=Copy(Data,7,4) + '.' + Copy(Data,4,3) + Copy(Data,1,2);
+     
+   //удаление точек из возвращенной даты
+   if deleteSymbol=1 then 
+     Data:=AnsiReplaceStr(Data, '.', '');
+   
+   Result := Data;   
+end;
+
+//Возврат текущего времени
+//Если deleteSymbol=1, то убираем двоеточия из формата записи
+function AddTime(deleteSymbol: integer=0): String;
+var
+   today: TDataTime; 
+   Time: String;
+begin
+   today := Now;     
+   Time:=TimeToStr(today);
+   
+   //удаление двоеточия из возвращенного времени  
+   if deleteSymbol=1 then 
+     Time:=AnsiReplaceStr(Time, ':', '');
+
+   Result := Time;   
+end;
+
+//создание текстового файла
+procedure CreateTextFile(sPath);
+const 
+  ForReading = 1;
+  ForWriting = 2;
+  ForAppending = 8;
+  TristateFalse = 0; 
+var 
+  fs, objFile: OleVariant; 
+begin                                              
+  fs := Sys.OleObject('Scripting.FileSystemObject'); 
+  if not fs.FileExists(sPath) then 
+  begin 
+   objFile := fs.CreateTextFile(sPath);
+   objFile.Close();
+  end; 
+end;
+
+//создание лога
+procedure CreateLog(vNamePackage);
+var 
+  sPath: OleVariant; 
+begin                    
+  sPath := 'C:\_Work\' + vNamePackage + ' ' + AddData(0,0) + '.txt';
+  CreateTextFile(sPath);
+end;
+
+//добавление текста в лог лога
+procedure AddTextLog(vText, vNamePackage: String);
+var 
+  sPath: OleVariant; 
+begin                                 
+  sPath := 'C:\_Work\' + vNamePackage + ' ' + AddData(0,0) + '.txt';
+  AddText(#13#10 + vText, sPath);
+end;
+
+//добавление логов
+//var1 - переменная
+//var2 - чему она должна быть равна
+procedure Compare(var1, var2, vErrorMessage: String; vMessage: String = 'Проверка выполнена успешно'; vFile: String = '');
+var
+  p,w,m: OleVariant;
+  vZORDR: string;
+begin
+  try
+    if var1 <> var2 then
+    begin
+      Log.Error('Exception', errorMessage);
+      if (vFile <> '') Then AddTextLog('ERROR! ' + vErrorMessage + ': ' + var1, vFile);
+    end
+    else
+    begin
+      Log.Message(vMessage + ': ' + var1);
+      if (vFile <> '') Then AddTextLog(vMessage + ': ' + var1, vFile);
+    end;
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;
+end;

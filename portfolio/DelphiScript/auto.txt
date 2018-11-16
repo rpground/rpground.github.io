@@ -1,0 +1,591 @@
+// ИМ.Самовывоз ЛС      
+
+// Создание ЛС
+procedure RegressPackage_3_1;
+const     
+  //константы для функции AddData       
+  ForAppending = 8;
+  TristateFalse = 0;  
+var 
+  LoadDoc,SaveDoc, vData, vNameLog, BDWebOrders, vLastOrderId, OrderID: string;                    
+begin
+  try                                             
+    //Загрузить ХМЛ 
+    LoadDoc := glLoadDoc;
+    
+    //Путь до файла со списком веб-заявок тест-комплита
+    BDWebOrders := glBDWebOrders;
+  
+    //Возвращает номер последней веб-заявки в списке веб-заявок
+    vLastOrderId := GetNodesText('ORDER_ID', BDWebOrders);
+    OrderID := IntToStr(1 + vLastOrderId);   
+  
+    //создание лога с проверками доков
+    vNameLog := 'ИМ - ЛС - Лог -';
+    CreateLog(vNameLog);     
+    AddTextLog('Номер веб-заявки: ' + OrderID, vNameLog);  //добаваляем номер ЗП в лог
+    
+    //Пересохранить ХМЛ  
+    SaveDoc := glSaveDoc + OrderID + '_1000.xml';
+    SaveAsXml(LoadDoc, SaveDoc);
+   
+    //добавить номер документа в ХМЛ
+    ChangeNodesText('ORDER_ID',OrderID, SaveDoc);
+   
+    //Добавить номера заводов документа в ХМЛ
+    ChangeNodesText('WERK',glWerk, SaveDoc);
+    ChangeNodesText('IM_WERK', glImWerk, SaveDoc);
+  
+    //Добавление номера бонусной карты как лояльность
+    ChangeNodesText('BONUS_CARD', glBonusCard, SaveDoc);  
+                
+    //Добавление номера бонусной карты как ПС
+    ChangeNodesText('CARD_NUMBER', glBonusCard, SaveDoc);
+    
+    //Добавить дату создания веб-заявки в ХМЛ
+    ChangeNodesText('DATE_INSERT', AddData(1,1), SaveDoc);  
+ 
+    //Добавить дату доставки в ХМЛ
+    ChangeNodesText('DELIVERY_DAY', AddData(1,1)+1, SaveDoc);   
+
+    //Добавить тег <TIMESTAMP>, дату и число в нем
+    vData := '<TIMESTAMP>' + AddData(1,0) + ' ' + AddTime(0) + '<TIMESTAMP>';
+    AddText(vData, SaveDoc);
+  
+    //Запустить локально задание шедулера ImportByTemplate        
+    ImportByTemplate;    
+  
+    //Вносит новый номер веб-заявки в список веб-заявок
+    ChangeNodesText('ORDER_ID',OrderID, BDWebOrders); 
+  
+    //Вход в трейд
+    LogInService;
+                   
+    //Закрытие окна несобранных заказов
+    CloseWindowUncollectedOrders;
+
+    //Проверка веб-заявки
+    CheckWebOrders(OrderID); 
+
+    EditWebOrders; //изменить веб-заявку 
+    CheckStatusWebOrders('WRQST_ACPT');  //Проверяем статус заявки
+    LogOut; //выход с трейда
+
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;   
+end;
+
+
+//Оплата веб-заявки
+procedure RegressPackage_3_2;
+var 
+  vWebOrderID: string;                    
+begin  
+  try
+    //добавление купона в бины
+    AddBinCoupon(glCardCode, glCoupon);
+    Sys.Delay(1000);
+     
+    //сторнирование последней операции купона
+    StornoOperationCoupon(glCoupon);
+    Sys.Delay(1000);
+
+    //экспорт в кассу
+    ExportTsPos;
+    Sys.Delay(4000); 
+  
+    //вход на кассу 
+    LogInCash;
+  
+    //номер последней веб-заявки в xml-файле
+    vWebOrderID := GetNodesText('ORDER_ID', glBDWebOrders);
+    //поиск веб-заявки                                           
+    SearchWebInCash(vWebOrderID);
+  
+    //закрытие окна "зарезервированных клиентом бонусов" 
+    CloseReserveBonusWindowInCash;                                               
+   
+    //Добавление платежных средств:
+    
+    // оплата бонусной картой
+    PayBonusInCash(glBonusCardTrack, '90');
+
+    //Оплата купоном 
+    PayCouponInCash(glCoupon, glPinCoupon); 
+
+    //Оплата банковской картой
+    PayBankInCash('20'); 
+  
+    //Оплата наличными
+    PayMoneyInCash('-20');
+  
+    // Печать чека на кассе
+    PayInCash;
+            
+    LogOutCash; 
+    Sys.Delay(1000);    
+    
+    // Загрузка чеков
+    TestProc;
+    //UploadCheques;
+                                   
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;
+    
+end; 
+
+//сторно оплаты веб-заявки
+procedure RegressPackage_3_3;
+var 
+  p, w, vWebOrderID, vCheck: string;                    
+begin  
+  try
+    // вход на кассу  
+    LogInCash;
+    //номер последней веб-заявки в xml-файле                
+    vWebOrderID := GetNodesText('ORDER_ID', glBDWebOrders);
+    //находим номер ДО по номеру веб-заявки
+    vCheck := GetCheckWebOrder(vWebOrderID);
+    //Сторно оплаты веб-заявки    
+    StornoPayInCash(vCheck); 
+    Sys.Delay(8000); 
+    LogOutCash; 
+    Sys.Delay(1000);             
+    
+    // Загрузка чеков
+    TestProc;
+    //UploadCheques;
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+
+// Создание заказа ИМ ООС
+procedure RegressPackage_5_1;
+const            
+  ForAppending = 8;
+  TristateFalse = 0;  
+var 
+  LoadDoc,SaveDoc, vData, BDWebOrders, vLastOrderId, vWebOrderID, vOrderWebId, vOrderID, vParam, vNameLog, vBonusReserve: string;                    
+begin   
+  try                                          
+    //Загрузить инициирующую ХМЛ 
+    LoadDoc := glLoadDocOnline;
+    
+    //Путь до файла со списком веб-заявок тест-комплита
+    BDWebOrders := glBDWebOrders;
+  
+    //Возвращает номер последней веб-заявки в списке веб-заявок
+    vLastOrderId := GetNodesText('ORDER_ID', BDWebOrders);
+    vWebOrderID := IntToStr(1 + vLastOrderId);   
+  
+    //Пересохранить инициирующую ХМЛ  
+    SaveDoc := glSaveDoc + vWebOrderID + '_1000.xml';
+    SaveAsXml(LoadDoc, SaveDoc);
+  
+    //меняем инициирующую ХМЛ 
+    ChangeNodesText('ORDER_ID',vWebOrderID, SaveDoc); //добавить номер документа в ХМЛ 
+    ChangeNodesText('WERK',glWerk, SaveDoc); //Добавить номера заводов документа в ХМЛ        
+    ChangeNodesText('IM_WERK', glImWerkOnline, SaveDoc);
+    ChangeNodesText('BONUS_CARD', glBonusCard, SaveDoc); //Добавление номера бонусной карты как лояльность  
+    ChangeNodesTextToText('CARD_NUMBER', '9643780032928534', glBonusCard, SaveDoc); //Добавление номера бонусной карты как ПС 
+    ChangeNodesText('DATE_INSERT', AddData(1,1), SaveDoc); //Добавить дату создания веб-заявки в ХМЛ  
+    
+    //Пересохранить инициирующую ХМЛ (1000) как корректирующую (1001)
+    LoadDoc := glSaveDoc + vWebOrderID + '_1000.xml';  
+    SaveDoc := glSaveDoc + vWebOrderID + '_1001.xml';
+    SaveAsXml(LoadDoc, SaveDoc);  
+    
+    //Добавить тег <TIMESTAMP>, дату и число в нем в инициирующую
+    vData := '<TIMESTAMP>' + AddData(1,0) + ' ' + AddTime(0) + '<TIMESTAMP>';
+    AddText(vData, LoadDoc);
+  
+    //меняем корректирующую ХМЛ 
+    ChangeNodesText('TARGET', '', SaveDoc); //делаем пустым тег TARGET
+    ChangeNodesText('IS_CHANGE', 'Y', SaveDoc); //делаем тег IS_CHANGE равным 'Y'
+    ChangeNodesTextToText('CARD_NUMBER', '', glBankCardNumber, SaveDoc);//вставляем номер банк.карты     
+
+    //Добавить тег <TIMESTAMP>, дату и число в нем в корректирующую ХМЛ
+    Sys.Delay(5000); 
+    vData := '<TIMESTAMP>' + AddData(1,0) + ' ' + AddTime(0) + '<TIMESTAMP>';
+    AddText(vData, SaveDoc);
+  
+    //Запустить локально задание шедулера ImportByTemplate
+    Sys.Delay(1000);         
+    ImportByTemplate;
+  
+    //Вносит новый номер веб-заявки в список веб-заявок
+    ChangeNodesText('ORDER_ID',vWebOrderID, BDWebOrders); 
+    Sys.Delay(1000);
+  
+    //Вход в трейд
+    LogInService;                     
+    //Закрытие окна несобранных заказов
+    CloseWindowUncollectedOrders;
+
+    //Проверка веб-заявки  в реестре заказов покупателя   
+    CheckWebOrders(vWebOrderID);                                                                                                   
+
+    LogOut; //выход с трейда
+  
+    //создание лога с проверками доков
+    vNameLog := 'ИМ - ООС - Лог -';
+    CreateLog(vNameLog);
+    vOrderID := GetOrderWhereWeb(vWebOrderID);  // номер ЗП по веб-заявке
+    AddTextLog('Номер ЗП: ' + vOrderID, vNameLog);  //добаваляем номер ЗП в лог
+    
+    //проверка кол-ва бонусов
+    vBonusReserve := GetBonusReserve(vOrderID); //резерв бонусов по этой веб-заявке
+    Compare(vBonusReserve, '90', 'ERROR!Сумма зарезервированных бонусов не совпадает', 'Сумма зарезервированных бонусов', vNameLog);
+
+    //проверка данных во вкладке "параметры документа" веб-заявки
+    vOrderWebId := GetWebOrderWhereWeb(vWebOrderID);  // номер заявки-WEB по веб-заявке
+    AddTextLog(#13#10 + 'ПАРАМЕТРЫ заявки WEB: ' + vOrderWebId, vNameLog);
+
+    //проверка полей во вкладке "параметры документа" веб-заявки    
+    Compare(GetParamDoc(vOrderID, 'CARD_NMBR'), glBonusCard, 'ERROR!Бонусная карта в параметрах документа отображается неверно', 'Номер бонусной карты', vNameLog);
+    Compare(GetParamDoc(vOrderWebId, 'CONTACTTEL'), '-', 'ERROR!Номер телефона в параметрах документа отображается неверно', 'Номер телефона', vNameLog);
+    Compare(GetParamDoc(vOrderWebId, 'DOC_VERS'), '2', 'ERROR! Версия документа в параметрах документа отображается неверно', 'Версия документа', vNameLog);
+    Compare(GetParamDoc(vOrderWebId, 'FAMILY'), 'Test', 'ERROR! Фамилия в параметрах документа отображается неверно', 'Фамилия', vNameLog);
+    Compare(GetParamDoc(vOrderWebId, 'FNAME'), 'Test', 'ERROR! Имя в параметрах документа отображается неверно', 'Имя', vNameLog);
+    Compare(GetParamDoc(vOrderWebId, 'ONLINE_PAY'), 'Y', 'ERROR!Онлайн-оплата в параметрах документа отображается неверно', 'Онлайн-оплата', vNameLog);
+    AddTextLog('Номер банковской карты: ' + glBankCardNumber, vNameLog);     
+    
+    //создание лога с номерами документов
+    CreateLog('ИМ - ООС -');
+    Sys.Delay(1000);
+    AddTextLog('DEV: ' + glTs, 'ИМ - ООС -');
+    AddTextLog('Веб-заявка: ' + vWebOrderID, 'ИМ - ООС -');
+    AddTextLog('ЗП: ' + vOrderID, 'ИМ - ООС -');
+    AddTextLog('Номер заявки WEB: ' + vOrderWebId, 'ИМ - ООС -'); 
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;    
+end;
+
+// Создание заказа ИМ ООС
+procedure RegressPackage_5_2;
+const            
+  ForAppending = 8;
+  TristateFalse = 0;  
+var 
+  LoadDoc, SaveDoc, vData, BDWebOrders, vLastOrderId, vNameLog, vWebOrderID, vOrderID, vDocPayID, vBonusReserve, vParam: string;                    
+begin   
+  try                                          
+    //Загрузить инициирующую ХМЛ 
+    LoadDoc := glLoadPayOnline;
+    
+    //Путь до файла со списком веб-заявок тест-комплита
+    BDWebOrders := glBDWebOrders;
+  
+    //Возвращает номер последней веб-заявки в списке веб-заявок
+    vWebOrderID := GetNodesText('ORDER_ID', BDWebOrders); 
+    //Поиск ЗП по веб-заявке
+    vOrderID := GetOrderWhereWeb(vWebOrderID);
+
+    //Пересохранить инициирующую ХМЛ  
+    SaveDoc := glSaveDoc + vWebOrderID + '_1002.xml';
+    SaveAsXml(LoadDoc, SaveDoc);
+  
+    //меняем данные ХМЛ 
+    ChangeNodesText('ORDER_ID',vWebOrderID, SaveDoc); //добавить номер документа в ХМЛ 
+    ChangeNodesText('WERK',glWerk, SaveDoc); //Добавить номера заводов документа в ХМЛ        
+    ChangeNodesText('IM_WERK', glImWerkOnline, SaveDoc);
+    ChangeNodesText('AUTH_DATE', AddData(1,1), SaveDoc); //Добавить дату создания веб-заявки в ХМЛ  
+  
+    //Запустить локально задание шедулера ImportByTemplate
+    Sys.Delay(1000);         
+    ImportByTemplate;
+    Sys.Delay(1000);   
+  
+    //Проверка веб-заявки в реестре веб-заявок
+    //Вход в трейд
+    LogInService;                    
+    //Закрытие окна несобранных заказов
+    CloseWindowUncollectedOrders;
+
+    //Проверка веб-заявки
+    CheckWebOrders(vWebOrderID);           
+
+    //Проверка параметров в движении документа ЗП 
+    //вид движения ZRV1 с "+"
+    //вид запаса "B" на складе 333 или 90 (в зависимости от наличия товара, по приоритету 333 затем 90) 
+    //(блокировка на основном или неассортиментном складе)
+    vNameLog := 'ИМ - ООС - Лог -';
+    AddTextLog(#13#10 + 'ПАРАМЕТРЫ во вкладке "движения товаров" ЗП до подтверждения веб-заявки', vNameLog);   
+    Compare(GetConnectGm(vOrderID, 'ZORDR_DRFT', 'gm_type_code'), 'ZRV1', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_DRFT', 'stock_type'), 'B', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_DRFT', 'storage_code'), '0333', 'ERROR! Склад в параметрах документа отображается неверно', 'Склад', vNameLog); 
+    Compare(GetConnectGm(vOrderID, 'ZORDR_DRFT', 'quantity'), '1', 'ERROR! Количество в параметрах документа отображается неверно', 'Количество', vNameLog); 
+         
+    EditWebOrders; //изменить веб-заявку 
+    CheckStatusWebOrders('WRQST_ACPT');  //Проверяем статус заявки  
+    
+    //Проверка параметров в движении документа ЗП 
+    //вид движения ZRV1 с "+"
+    //вид запаса "B" на складе 333 или 90 (в зависимости от наличия товара, по приоритету 333 затем 90) 
+    //(блокировка на основном или неассортиментном складе)
+    AddTextLog(#13#10 + 'Параметры во вкладке "движения товаров" ЗП после подтверждения веб-заявки', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'gm_type_code'), 'ZRV2', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'stock_type'), 'B', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'storage_code'), '0333', 'ERROR! Склад в параметрах документа отображается неверно', 'Склад', vNameLog); 
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'quantity'), '-1', 'ERROR! Количество в параметрах документа отображается неверно', 'Количество', vNameLog); 
+    
+    //вид движения ZRV1 с "+"
+    //вид запаса "B" на складе 333 или 90 (в зависимости от наличия товара, по приоритету 333 затем 90) 
+    //(блокировка на основном или неассортиментном складе)
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'gm_type_code', 'asc'), 'ZRV1', 'ERROR! Вид движения в параметрах документа отображается неверно', #13#10 + 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'stock_type', 'asc'), 'B', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'storage_code', 'asc'), '0555', 'ERROR! Склад в параметрах документа отображается неверно', 'Склад', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_OPEN', 'quantity', 'asc'), '1', 'ERROR! Количество в параметрах документа отображается неверно', 'Количество', vNameLog); 
+              
+    //выдать товар
+    GiveProduct(glCodePhone);
+
+    //Проверяем статус заявки 
+    CheckStatusWebOrders('WRQST_RCVD');
+
+    //Проверка параметров в движении документа ЗП 
+    //вид движения ZRV1 с "+"
+    //вид запаса "B" на складе 333 или 90 (в зависимости от наличия товара, по приоритету 333 затем 90) 
+    //(блокировка на основном или неассортиментном складе)
+    AddTextLog(#13#10 + 'Параметры во вкладке "движения товаров" ЗП после выдачи веб-заявки', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_PAYD', 'gm_type_code'), 'ZRV2', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_PAYD', 'stock_type'), 'B', 'ERROR! Вид движения в параметрах документа отображается неверно', 'Вид движения', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_PAYD', 'storage_code'), '0555', 'ERROR! Склад в параметрах документа отображается неверно', 'Склад', vNameLog);
+    Compare(GetConnectGm(vOrderID, 'ZORDR_PAYD', 'quantity'), '-1', 'ERROR! Количество в параметрах документа отображается неверно', 'Количество', vNameLog); 
+     
+    vDocPayID := GetDocPay(vOrderID);
+    AddTextLog('ДО: ' + vDocPayID, 'ИМ - ООС -');       
+    //открытие реестра ДО                         
+    ListDocPayCoordinate;
+    //проверка ДО в реестре ДО  
+    CheckDocPay(vDocPayID);
+    //выход с трейда  
+    LogOut;
+    Sys.Delay(1000);  except
+    Log.Error('Exception', ExceptionMessage);
+  end;    
+end; 
+
+// Создание заказа ИМ ООС
+procedure RegressPackage_5_3; 
+var 
+  BDWebOrders, vWebOrderID, vOrderID: string;                    
+begin   
+  try                
+    //получение номера ЗП
+    //Путь до файла со списком веб-заявок тест-комплита
+    BDWebOrders := glBDWebOrders; 
+    //Возвращает номер последней веб-заявки в списке веб-заявок
+    vWebOrderID := GetNodesText('ORDER_ID', BDWebOrders);  
+    //Поиск ЗП по веб-заявке                     
+    vOrderID := GetOrderWhereWeb(vWebOrderID); 
+
+    LogInService;    
+ 
+    //Закрытие окна несобранных заказов
+    CloseWindowUncollectedOrders;  
+    //открытие окна "Список приложений"   
+    OpenTreeListCoordinate;  
+    //раскрытие ветки "документы" в "списке документов"                                          
+    OpenDocCoordinate;                        
+    //открытие окна создания упрощенного АРБ
+    OpenUArbCoordinate;  
+    
+    // Создаем упрощенный АРБ    
+    CreatUARB(vOrderID); 
+    //добавление номера АРБ в лог       
+    AddTextLog('АРБ: ' + GetMaxOrder('tcss', '', 'ZRTRN'), 'ИМ - ООС -');    
+
+    //закрытие тс
+    LogOut;   
+
+    //создание вдс
+    CashRefunds2(glBonusCardTrack, 'ZRTRN');
+    TestProc;      
+    //UploadCheques;
+    Sys.Delay(2000);
+    AddTextLog('Номер чека: ' + GetCheckRefunds(GetMaxOrder('tcss', '', 'ZRTRN')), 'ИМ - ООС -');                                              
+    
+    //Подтверждение внутреннего перемещения
+    //Вход в ТС кладовщик
+    LogInKlad;      
+    //открытие окна "Список приложений"   
+    OpenTreeList;                                          
+    //открытие дерева "реестр"                                            
+    ListCoordinate('service');
+    //открытие реестра ЗП                                                                         
+    ListWebCoordinate;
+    //открытие реестра "черновиков внутренних перемещений
+    ListInTransfer; 
+
+    //Подтверждение внутреннего перемещения
+    ChangeInTransfer;
+    //закрытие тс
+    LogOut;
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;    
+end; 
+ 
+// Создание заказа ИМ с доставкой
+procedure RegressPackage_6_1;
+const            
+  ForAppending = 8;
+  TristateFalse = 0;  
+var 
+  LoadDoc,SaveDoc, vData, BDWebOrders, vLastOrderId, OrderID, vOrderID, vBonusReserve: string;                    
+begin   
+  try                                          
+    //Загрузить инициирующую ХМЛ 
+    LoadDoc := glLoadDocDelivery;
+    
+    //Путь до файла со списком веб-заявок тест-комплита
+    BDWebOrders := glBDWebOrders;
+  
+    //Возвращает номер последней веб-заявки в списке веб-заявок
+    vLastOrderId := GetNodesText('ORDER_ID', BDWebOrders);
+    OrderID := IntToStr(1 + vLastOrderId);   
+  
+    //Пересохранить инициирующую ХМЛ  
+    SaveDoc := glSaveDoc + OrderID + '_1000.xml';
+    SaveAsXml(LoadDoc, SaveDoc);
+  
+    //меняем инициирующую ХМЛ 
+    ChangeNodesText('ORDER_ID',OrderID, SaveDoc); //добавить номер документа в ХМЛ 
+    ChangeNodesText('WERK',glWerkDelivery, SaveDoc); //Добавить номера заводов документа в ХМЛ        
+    ChangeNodesTextToText('IM_WERK', 'A400', glImWerkDelivery, SaveDoc);
+    ChangeNodesText('BONUS_CARD', glBonusCard, SaveDoc); //Добавление номера бонусной карты как лояльность  
+    ChangeNodesText('CARD_NUMBER', glBonusCard, SaveDoc); //Добавление номера бонусной карты как ПС 
+    ChangeNodesText('DATE_INSERT', AddData(1,1), SaveDoc); //Добавить дату создания веб-заявки в ХМЛ  
+    ChangeNodesTextToText('VALUE', '20080415', AddData(1,1)+1, SaveDoc); //Добавить дату доставки в ХМЛ     
+  
+    //Пересохранить инициирующую ХМЛ (1000) как корректирующую (1001)
+    LoadDoc := glSaveDoc + OrderID + '_1000.xml';  
+    SaveDoc := glSaveDoc + OrderID + '_1001.xml';
+    SaveAsXml(LoadDoc, SaveDoc);  
+    
+    //Добавить тег <TIMESTAMP>, дату и число в нем в инициирующую
+    vData := '<TIMESTAMP>' + AddData(1,0) + ' ' + AddTime(0) + '<TIMESTAMP>';
+    AddText(vData, LoadDoc);
+  
+    //меняем корректирующую ХМЛ 
+    ChangeNodesText('TARGET', '', SaveDoc); //делаем пустым тег TARGET
+    ChangeNodesText('IS_CHANGE', 'Y', SaveDoc); //делаем тег IS_CHANGE равным 'Y'
+    ChangeNodesText('CARD_NUM', glEldoCheck, SaveDoc); //делаем тег IS_CHANGE равным 'Y'     
+
+    //Добавить тег <TIMESTAMP>, дату и число в нем в корректирующую ХМЛ
+    Sys.Delay(5000); 
+    vData := '<TIMESTAMP>' + AddData(1,0) + ' ' + AddTime(0) + '<TIMESTAMP>';
+    AddText(vData, SaveDoc);
+  
+    //Запустить локально задание шедулера ImportByTemplate
+    Sys.Delay(1000);         
+    ImportWebOrderToDB;
+  
+    //Вносит новый номер веб-заявки в список веб-заявок
+    ChangeNodesText('ORDER_ID',OrderID, BDWebOrders); 
+    Sys.Delay(1000);
+  
+    //Проверка ЗП по веб-заявке в реестре заказов покупателя
+    //Вход в трейд
+    LogInServiceDelivery;                    
+    //Закрытие окна несобранных заказов
+    CloseWindowUncollectedOrders;
+    CheckWebOrders(OrderID, '8');
+    LogOutDelivery;
+  
+    //СТОРНИРОВАНИЕ ПРЕДЫДУЩЕГО ЗАЧИСЛЕНИЯ СРЕДСТВ НА ЭЛЬДО-ЧЕК
+    StornoOperationEldoCheck(glEldoCheck); 
+  
+    //проверка кол-ва бонусов
+    vOrderID := GetOrderWhereWeb(OrderID, '8');  //возврат номера ЗП по веб-заявке
+    vBonusReserve := GetBonusReserve(vOrderID, '8'); //возврат резерва бонусов по этой веб-заявке
+  
+    if vBonusReserve<>'50' then
+      Log.Error('CreateZORDR', 'сумма зарезервированных бонусов не совпадает'); 
+  
+    Sys.Delay(1000);    
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;    
+end;
+
+
+// Создание заказа ИМ с доставкой
+procedure RegressPackage_6_2;
+var 
+     p, w, m: OleVariant; v, vWebOrderID, vOrderID: string;                    
+begin
+  try 
+    //вход в трейд профиль старший кассир
+    LogInKassirDelivery;
+    w := Ts;
+    w.Activate; 
+   
+    //создание ДО   
+    //открытие окна "Список приложений" 
+    OpenTreeList;                                                    
+    OpenDocCoordinateKassir;                      
+    OpenDoCoordinate;                            
+    m := w.Window('TfeChainBaseForm', 'Документ оплаты');
+    m.Activate;
+    
+    // вводим номер ЗП
+    vWebOrderID := GetNodesText('ORDER_ID', glBDWebOrders);
+    vOrderID := GetOrderWhereWeb(vWebOrderID, '8');  
+    Sys.Keys(vOrderID);
+    
+    // Переход на вкладку позиции документа
+    m.Window('TcxButton', 'Далее >>').Click;
+    Sys.Delay(2000);
+    //на вкладку параметры документа
+    m.Window('TcxButton', 'Далее >>').Click;
+    Sys.Delay(2000);
+    //вкладку оплата
+    m.Window('TcxButton', 'Далее >>').Click;
+    Sys.Delay(2000);
+    
+    //проверяем возможность смены оплаты на "оплата онлайн"
+    Sys.Keys('[Ins][Home][Enter]Онлайн оплата Р[Enter]');
+    Sys.Delay(1000); 
+    Sys.Keys('[Enter]');
+    Sys.Delay(1000);
+    Sys.Clipboard := '';    
+    Sys.Keys('^u');
+    v := Sys.Clipboard;            
+    if (v <> 'Онлайн оплата РСХБ') then
+    begin
+        Log.Error('CreateZORDR', 'онлайн-оплата не выбрана');   
+    end;
+    
+    //вводим оплату наличными
+    Sys.Keys('[Enter]Н[Enter]');
+  
+    //переход на вкладку "данные чека"
+    m.Window('TcxButton', 'Далее >>').Click;
+    Sys.Delay(2000);
+    
+    //сохраняем документа оплаты
+    m.Window('TcxButton', 'Сохранить').Click;
+    Sys.Delay(9000);
+    
+    //закрываем окно отправки транзакции 201   
+    CloseMessageForm;
+    
+    //закрываем печатную форму
+    ClosePreviewForm;
+    
+    //Закрытие трейда  
+    Sys.Delay(8000);
+    LogOutDelivery; 
+  except
+    Log.Error('Exception', ExceptionMessage);
+  end;
+end;
+
+
+
