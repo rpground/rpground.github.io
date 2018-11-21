@@ -113,7 +113,8 @@
         }
         return [
           {title: 'Login', icon: 'account_box', url: '/login'},
-          {title: 'Register', icon: 'face', url: '/register'}
+          {title: 'Register', icon: 'face', url: '/register'},
+          {title: 'Summ', icon: 'add', url: '/summ'}
         ]
       }
     },

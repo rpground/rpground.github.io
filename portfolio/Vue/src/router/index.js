@@ -10,6 +10,7 @@ import ErrorCmp from '@/components/Error'
 import Login from '@/components/Auth/Login'
 import Register from '@/components/Auth/Register'
 import Tooltip from '@/components/Tooltip'
+import Summ from '@/components/Summ'
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '',
       name: 'Tooltip',
       component: Tooltip
+    },
+    {
+      path: '/summ',
+      name: 'Summ',
+      component: Summ
     },
     {
       path: '/product/:id',
