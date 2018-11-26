@@ -157,7 +157,6 @@ export default {
           commit('loadProducts', resultProducts)
           commit('setLoading', false)
         })
-        console.log(products)
       } catch (error) {
         commit('setError', error.message)
         commit('setLoading', false)

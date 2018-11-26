@@ -44,11 +44,11 @@
     beforeUpdate () {
       this.numms.map((numm) => {
         if (numm.sub !== null) {
-          if (numm.sub[0] == 0) numm.sub = ''
+          if (numm.sub[0] === '0') numm.sub = ''
           numm.sub = numm.sub.replace(/[^0-9]/gim, '')
         }
         if (numm.sup !== null) {
-          if (numm.sup[0] == 0) numm.sup = ''
+          if (numm.sup[0] === '0') numm.sup = ''
           numm.sup = numm.sup.replace(/[^0-9]/gim, '')
         }
       })

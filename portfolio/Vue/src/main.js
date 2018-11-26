@@ -33,6 +33,17 @@ new Vue({
         this.$store.dispatch('autoLoginUser', user)
       }
     })
+    if (this.$router.history.current.name === 'article') {
+      this.$store.dispatch('fetchArticle')
+    }
+    if (this.$router.history.current.name === 'diary') {
+      this.$store.dispatch('fetchDiary')
+    }
+    if (this.$router.history.current.name === 'product') {
+      this.$store.dispatch('fetchProduct')
+    }
+    this.$store.dispatch('fetchArticle')
+    this.$store.dispatch('fetchDiary')
     this.$store.dispatch('fetchProduct')
   }
 })

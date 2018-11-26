@@ -12,6 +12,13 @@
               <v-form ref="form" v-model="valid" lazy-validation>
                 <v-text-field 
                   prepend-icon="person"
+                  name="nickname"
+                  label="Nickname"
+                  type="text"
+                  v-model="Nickname"
+                ></v-text-field>
+                <v-text-field 
+                  prepend-icon="email"
                   name="email"
                   label="Email"
                   type="email"
@@ -88,7 +95,8 @@ export default {
         // Native form submission is not yet supported
         const user = {
           email: this.email,
-          password: this.password
+          password: this.password,
+          nickname: this.nickname
         }
         this.$store.dispatch('registerUser', user)
         .then(() => {

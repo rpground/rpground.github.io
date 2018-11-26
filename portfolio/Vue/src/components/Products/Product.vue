@@ -8,7 +8,7 @@
       >
         <v-layout row wrap>
           <v-flex xs12>
-            <v-card color="cyan darken-2" class="white--text" v-if="!loading">
+            <v-card color="cyan darken-2" class="white--text">
               <v-layout row wrap>
                 <v-flex sm6 xs12 class="pt-0 pb-0">
                   <v-carousel>
@@ -97,7 +97,7 @@
   </v-container>
 </template>
 
-<style type="text/css">
+<style scoped>
   h3 {
     display: inline-block;
   }
@@ -121,7 +121,6 @@ export default {
       return this.$store.getters.loading
     },
     isOwner () {
-      console.log(this.product.ownerId, this.$store.getters.user.id)
       return this.product.ownerId === this.$store.getters.user.id
     }
   },

@@ -51,31 +51,51 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
+
+      <v-toolbar-items v-for="(link, i) in links" :key="i" class="hidden-sm-and-down">
+        <v-menu
+          v-if="link.urlArr" 
+          offset-y
+          origin="center center"
+          transition="scale-transition"  
+        >
+          <v-btn flat slot="activator">
+            <v-icon left>{{link.icon}}</v-icon>
+            {{link.title}}
+          </v-btn>
+
+          <v-list>
+            <v-list-tile
+              v-for="(link, index) in link.urlArr"
+              :key="index"
+              :to="link.url"
+            >
+              {{link.title}}
+              </v-list-tile>
+          </v-list>
+        </v-menu>
+        <v-btn v-else flat :to="link.url">
+          <v-icon left>{{link.icon}}</v-icon>
+          {{link.title}}
+        </v-btn>
+      </v-toolbar-items>
+
+      <v-toolbar-items>
         <v-btn
           flat
-          v-for="(link, i) in links"
-          :key="i"
-          :to="link.url"
+          @click.stop="onLogout"
+          v-if="isUserLogin"
         >
-          <v-icon left>{{link.icon}}</v-icon>
-        {{link.title}}</v-btn>
-      </v-toolbar-items>    
-      
-      <v-btn
-        flat
-        @click.stop="onLogout"
-        v-if="isUserLogin"
-      >
-        <v-icon>exit_to_app</v-icon>
-        Logout
-      </v-btn>
-      <v-btn
-        flat
-        @click.stop="settingsNav = !settingsNav"
-      >
-        <v-icon>settings</v-icon>
-      </v-btn> 
+          <v-icon>exit_to_app</v-icon>
+          Logout
+        </v-btn>
+        <v-btn
+          flat
+          @click.stop="settingsNav = !settingsNav"
+        >
+          <v-icon>settings</v-icon>
+        </v-btn>
+      </v-toolbar-items>
     </v-toolbar>
 
     <v-content>
@@ -84,7 +104,7 @@
   </div>
 </template>
 
-<script type="text/javascript">
+<script>
   import Tooltip from './Tooltip'
   export default {
     data () {
@@ -107,8 +127,24 @@
         if (this.isUserLogin) {
           return [
             {title: 'Cart', icon: 'shopping_cart', url: '/checkout'},
-            {title: 'New Product', icon: 'add', url: '/new'},
-            {title: 'My Product', icon: 'list', url: '/list'}
+            {
+              title: 'New',
+              icon: 'add',
+              urlArr: [
+                {title: 'New Product', icon: 'add', url: '/new'},
+                {title: 'New Article', icon: 'add', url: '/newarticle'},
+                {title: 'New Diary', icon: 'add', url: '/newdiary'}
+              ]
+            },
+            {
+              title: 'My',
+              icon: 'list',
+              urlArr: [
+                {title: 'My Games', icon: 'add', url: '/list'},
+                {title: 'My Diarys', icon: 'add', url: '/listdiary'},
+                {title: 'My Articles', icon: 'add', url: '/listarticle'}
+              ]
+            }
           ]
         }
         return [

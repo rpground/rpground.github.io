@@ -1,0 +1,37 @@
+{
+        id: '1',
+        title: 'Fear & Hunger',
+        author: 'orange',
+        engine: 'RPG Maker MV',
+        genre: 'RPG',
+        setting: 'Horror',
+        description: 'Fear & Hunger is a roguelike dungeon crawler set in the dark and hopeless dungeons of fear and hunger. Four misfortuned adventurers dwell deeper and deeper to the darkness and uncover the secrets this ancient fortress holds inside. The fortress works as an ancient nexus for different planes of existence. The depths are in an eternal turmoil as both old and new gods struggle for power, it’s up to the players to choose their position and stance in all of this. ',
+        date: '01.13.2017',
+        dateUpd: '10.26.2018',
+        promo: true,
+        imageSrc: [
+          'https://rpgmaker.net/media/content/games/9476/screenshots/hunger_promo2.png',
+          'https://rpgmaker.net/media/content/users/60887/locker/screen2.png',
+          'https://rpgmaker.net/media/content/games/9476/screenshots/combat.png'
+        ]
+      },
+      {
+        id: '2',
+        title: 'Beloved Rapture',
+        author: 'Blind',
+        engine: 'RPG Maker 2003',
+        genre: 'Adventure, RPG',
+        setting: 'Fantasy',
+        description: 'Beloved Rapture is a narrative-driven indie game in the style of the “classic” role-playing games. It combines the best elements of a SNES-era RPGs (an immersive game world, tough puzzles, dungeons), with a more "cinematic" focus - akin to an Adventure Game. In its earliest form, the project originated all the way back in 2009 - but it was not until 2014/2015 that I pulled it out of hiatus, and truly redefined my overall vision for the game. I started recreating game from the ground-up.',
+        date: '06.02.2007',
+        dateUpd: '10.03.2018',
+        promo: false,
+        imageSrc: [
+          'https://rpgmaker.net/media/content/users/5/locker/BRBanner2018.png',
+          'https://rpgmaker.net/media/content/games/8/screenshots/2018TitleScreen.gif',
+          'https://rpgmaker.net/media/content/games/8/screenshots/TempleOfVaal.png',
+          'https://rpgmaker.net/media/content/games/8/screenshots/AlexandriaNew21.png',
+          'https://rpgmaker.net/media/content/games/8/screenshots/Alexandria.PNG',
+          'https://rpgmaker.net/media/content/games/8/screenshots/Alexandria%20Attic.png'
+        ]
+      }
