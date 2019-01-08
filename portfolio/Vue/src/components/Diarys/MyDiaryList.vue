@@ -1,20 +1,17 @@
 <template>
   <v-container grid-list-lg>
-    <v-timeline v-if="!loading && diarys.length !== 0">
+    <v-timeline v-if="!loading && myDiary.length !== 0">
       <v-timeline-item
-        v-for="(diary, i) in diarys"
+        v-for="(diary, i) in myDiary"
         :key="i"
         color="cyan lighten-2"
         large
       >
-        <div slot="opposite">
-          <span class="headline font-weight-bold cyan--text">
-            {{users.find(user => user.id === diary.ownerId).nick}}
-          </span>
-          <div class="grey--text">{{ diary.dateUpd.slice(0, 10) }}</div>
-        </div>
+        <span slot="opposite">{{ diary.dateUpd.slice(0, 10) }}</span>
         <v-layout row wrap>
-          <v-flex xs12>
+          <v-flex
+            xs12
+          >
             <v-card>
               <v-carousel height="250px">
                 <router-link
@@ -22,7 +19,7 @@
                   :to="'/diary/'+diary.id"
                 >
                   <v-carousel-item
-                    v-for="(imageSrc, k) in diarys[i].imageSrc"
+                    v-for="(imageSrc, k) in myDiary[i].imageSrc"
                     :key="k"
                     :src="imageSrc"
                   ></v-carousel-item> 
@@ -30,35 +27,28 @@
               </v-carousel>
 
               <v-card-title primary-title>
-                <div class="grey--text date">
-                  {{users.find(user => user.id === diary.ownerId).nick}}
-                </div>
-                <v-spacer></v-spacer>
-                <div class="grey--text date">
-                  {{ diary.dateUpd.slice(0, 10) }}
-                </div>
-                <v-flex xs12>
-                  <h3 class="b-2 headline font-weight-bold">{{ diary.title }}</h3>
-                </v-flex>
-                <v-flex xs12>
+                <div>
+                  <h3 class="mb-0">{{ diary.title }}</h3>
                   <div v-html="diary.description.substring(0,200)"></div>
-                </v-flex>
+                </div>
+              </v-card-title>
 
+              <v-card-actions>
                 <v-btn
-                  small
+                  flat
                   dark
-                  outline
                   color="cyan"
+                  outline
                   :to="'/diary/'+diary.id"
                 >Подробнее</v-btn>
                 <v-btn flat color="orange">Explore</v-btn>
-              </v-card-title>
+              </v-card-actions>
             </v-card>
           </v-flex>
         </v-layout>
       </v-timeline-item>
     </v-timeline>
-    <v-layout v-else-if="!loading && diarys.length === 0">
+    <v-layout v-else-if="!loading && myDiary.length === 0">
       <v-flex xs12 class="text-xs-center">
         <h1 class="text--primary">You have no diarys</h1>
       </v-flex>
@@ -80,23 +70,17 @@
 <script>
 export default {
   computed: {
-    diarys () {
-      return this.$store.getters.diarys
+    myDiary () {
+      return this.$store.getters.myDiary
     },
     loading () {
       return this.$store.getters.loading
-    },
-    users () {
-      return this.$store.getters.users
     }
   }
 }
 </script>
 
 <style scoped>
-  .v-card >>> img{
-    width: 100%;
-  }
   .application--wrap {
     background-color: #eee;
   }
@@ -106,24 +90,4 @@ export default {
   .v-timeline {
     margin-top: 100px;
   }
-  @media (max-width: 600px) {
-    >>> .v-timeline {
-      margin-top: 0;
-    }
-    >>> .v-timeline-item {
-      margin-top: 20px;
-    }
-    >>> .v-timeline-item__opposite {
-      display: none;
-    }
-    >>> .v-timeline-item__body {
-      max-width: 100%;
-    }
-  }
-  @media (min-width: 600px) {
-    .date {
-      display: none;
-    }
-  }
-  
 </style>

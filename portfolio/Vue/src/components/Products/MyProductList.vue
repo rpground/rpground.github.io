@@ -1,10 +1,10 @@
 <template>
   <v-container grid-list-lg>
-    <v-layout row wrap v-if="!loading && products.length !== 0">
+    <v-layout row wrap v-if="!loading && myProducts.length !== 0">
       <v-flex
         xs12
         sm6
-        v-for="(product, i) in products"
+        v-for="(product, i) in myProducts"
         :key="i"
       >
         <v-card>
@@ -14,7 +14,7 @@
               :to="'/product/'+product.id"
             >
               <v-carousel-item
-                v-for="(imageSrc, k) in products[i].imageSrc"
+                v-for="(imageSrc, k) in myProducts[i].imageSrc"
                 :key="k"
                 :src="imageSrc"
               ></v-carousel-item> 
@@ -41,7 +41,7 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <v-layout v-else-if="!loading && products.length === 0">
+    <v-layout v-else-if="!loading && myProducts.length === 0">
       <v-flex xs12 class="text-xs-center">
         <h1 class="text--primary">You have no products</h1>
       </v-flex>
@@ -62,8 +62,8 @@
 <script>
 export default {
   computed: {
-    products () {
-      return this.$store.getters.products
+    myProducts () {
+      return this.$store.getters.myProducts
     },
     loading () {
       return this.$store.getters.loading

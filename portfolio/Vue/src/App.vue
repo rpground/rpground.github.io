@@ -44,3 +44,16 @@
     }
   }
 </script>
+
+<style type="text/css">
+  * {
+    word-wrap: break-word;
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+  }
+  .content{
+    white-space: pre-wrap;
+  }
+</style>

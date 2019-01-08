@@ -1,6 +1,9 @@
 <template>
-  <v-dialog max-width="600px" v-model="dialog">
-    <v-btn color="success" slot="activator">Редактировать</v-btn>
+  <v-dialog max-width="900px" v-model="dialog">
+    <v-btn
+      color="success"
+      @click.native="edit()"
+      slot="activator">Редактировать</v-btn>
     <v-card>
         <v-card-title>
           <span class="headline">Редактировать</span>
@@ -16,13 +19,13 @@
                 v-model="editTitle"
                 :rules="[v => !!v || 'поле обязательно для заполнения']"
               ></v-text-field>
-              <v-textarea
-                name="description"
-                label="Description"
-                type="text"
-                v-model="editDescription"
-                required
-              ></v-textarea>  
+              <v-form ref="form" lazy-validation>
+                <app-editor
+                  ref="Editor"
+                  v-model="editDescription"
+                  typeEditor="article"
+                ></app-editor>
+              </v-form>  
             </v-form>
           </v-container>
           <small>*indicates required field</small>
@@ -37,6 +40,7 @@
 </template>
 
 <script>
+  import Editor from '../Editor'
   export default {
     props: ['article'],
     data () {
@@ -47,21 +51,29 @@
       }
     },
     methods: {
+      edit () {
+        let text = this.mylib.tagToBbCode(this.article.description)
+        this.$refs.Editor.updateDescription(text)
+      },
       onCancel () {
         this.editTitle = this.article.title
         this.editDescription = this.article.description
         this.dialog = false
       },
       onSave () {
+        let des = this.mylib.bbCodeToTag(this.editDescription)
         if (this.editTitle !== '' && this.editDescription !== '') {
           this.$store.dispatch('updateArticle', {
             title: this.editTitle,
-            description: this.editDescription,
+            description: des,
             id: this.article.id
           })
           this.dialog = false
         }
       }
+    },
+    components: {
+      appEditor: Editor
     }
   }
 </script>

@@ -1,12 +1,12 @@
 <template>
   <div>
     <v-container grid-list-lg>
-      <v-layout row wrap v-if="!loading && articles.length !== 0">
+      <v-layout row wrap v-if="!loading && myArticle.length !== 0">
         <v-flex
           xs12
           sm6
           md4
-          v-for="(article, i) in articles"
+          v-for="(article, i) in myArticle"
           :key="i"
         >
           <v-card>
@@ -16,7 +16,7 @@
                 :to="'/article/'+article.id"
               >
                 <v-carousel-item
-                  v-for="(imageSrc, k) in articles[i].imageSrc"
+                  v-for="(imageSrc, k) in myArticle[i].imageSrc"
                   :key="k"
                   :src="imageSrc"
                 ></v-carousel-item> 
@@ -43,7 +43,7 @@
           </v-card>
         </v-flex>
       </v-layout>
-      <v-layout v-else-if="!loading && articles.length === 0">
+      <v-layout v-else-if="!loading && myArticle.length === 0">
         <v-flex xs12 class="text-xs-center">
           <h1 class="text--primary">You have no articles</h1>
         </v-flex>
@@ -66,8 +66,8 @@
 <script>
 export default {
   computed: {
-    articles () {
-      return this.$store.getters.articles
+    myArticle () {
+      return this.$store.getters.myArticle
     },
     loading () {
       return this.$store.getters.loading
@@ -75,9 +75,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .v-card >>> img{
-    width: 100%;
-  }
-</style>

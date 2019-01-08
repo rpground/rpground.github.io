@@ -1,18 +1,40 @@
 <template>
-  <v-layout>
+  <v-layout v-if="!loading">
     <div class="user-avatar">
-      <img src="https://mfst.igromania.ru/wp-content/uploads/2018/09/arnold-768x384.jpg">
-      </div>
-      <div class="user-info">
-      <h2>John Connor</h2>
-      <div class="user-city">Москва</div>
+      <img :src="user.ava">
+    </div>
+    <div class="user-info">
+      <h2>{{ user.nick }}</h2>
+      <div class="user-city">{{ user.city }}</div>
       <div class="user-data">2018.11.24 23:06:58</div>
-      </div>
-      <div class="user-button">Follow</div>
+    </div>
+    <v-spacer></v-spacer>
+    <div class="user-button">Follow</div>
   </v-layout>
+  <v-container v-else xs12 class="text-xs-center pt-5">
+    <v-progress-circular
+      :size="50"
+      :width="4"
+      color="cyan"
+      indeterminate
+    ></v-progress-circular>        
+  </v-container>
 </template>
 
-<script></script>
+<script>
+  export default {
+    props: ['id'],
+    computed: {
+      user () {
+        const id = this.id
+        return this.$store.getters.userById(id)
+      },
+      loading () {
+        return this.$store.getters.loading
+      }
+    }
+  }
+</script>
 
 <style scoped>
   .user{
@@ -23,8 +45,8 @@
     width: 100%;
   }
   .user-avatar{
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     flex-wrap: wrap;
   }
   .user-avatar img{
@@ -57,6 +79,20 @@
     font-size: 12px;
     line-height: 20px;
     cursor: pointer;
+  }
+  @media (max-width: 600px) {
+    .user-button{
+      padding: 0 5px;
+      font-size: 10px;
+    }
+    .user-city, .user-data{
+      font-size: 12px;
+    }
+  }
+  @media (min-width: 600px) {
+    >>> .spacer {
+      display: none;
+    }
   }
   .user-button:hover{
     background-color: #03a87c;

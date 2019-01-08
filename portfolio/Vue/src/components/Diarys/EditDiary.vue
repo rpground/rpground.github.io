@@ -1,6 +1,10 @@
 <template>
   <v-dialog max-width="600px" v-model="dialog">
-    <v-btn color="success" slot="activator">Редактировать</v-btn>
+    <v-btn
+      color="success"
+      @click.native="edit()"
+      slot="activator"
+    >Редактировать</v-btn>
     <v-card>
         <v-card-title>
           <span class="headline">Редактировать</span>
@@ -16,13 +20,13 @@
                 v-model="editTitle"
                 :rules="[v => !!v || 'поле обязательно для заполнения']"
               ></v-text-field>
-              <v-textarea
-                name="description"
-                label="Description"
-                type="text"
-                v-model="editDescription"
-                required
-              ></v-textarea>  
+              <v-form ref="form" lazy-validation>
+                <app-editor
+                  ref="Editor"
+                  v-model="editDescription"
+                  typeEditor="diary"
+                ></app-editor>
+              </v-form>  
             </v-form>
           </v-container>
           <small>*indicates required field</small>
@@ -37,6 +41,7 @@
 </template>
 
 <script>
+  import Editor from '../Editor'
   export default {
     props: ['diary'],
     data () {
@@ -47,21 +52,29 @@
       }
     },
     methods: {
+      edit () {
+        let text = this.mylib.tagToBbCode(this.diary.description)
+        this.$refs.Editor.updateDescription(text)
+      },
       onCancel () {
         this.editTitle = this.diary.title
         this.editDescription = this.diary.description
         this.dialog = false
       },
       onSave () {
+        let des = this.mylib.bbCodeToTag(this.editDescription)
         if (this.editTitle !== '' && this.editDescription !== '') {
           this.$store.dispatch('updateDiary', {
             title: this.editTitle,
-            description: this.editDescription,
+            description: des,
             id: this.diary.id
           })
           this.dialog = false
         }
       }
+    },
+    components: {
+      appEditor: Editor
     }
   }
 </script>

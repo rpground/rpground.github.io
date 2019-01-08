@@ -13,113 +13,63 @@
             :rules="[v => !!v || 'поле обязательно для заполнения']"
           ></v-text-field>
           <img src="">
-          <v-flex xs12>
-            <v-btn-toggle multiple>
-              <v-btn @click="addTag('[b]', '[/b]')" flat>
-                <v-icon>format_bold</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[i]', '[/i]')" flat>
-                <v-icon>format_italic</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[u]', '[/u]')" flat>
-                <v-icon>format_underlined</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[s]', '[/s]')" flat>
-                <v-icon>format_clear</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[sub]', '[/sub]')" flat>
-                <v-icon>vertical_align_bottom</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[sup]', '[/sup]')" flat>
-                <v-icon>vertical_align_top</v-icon>
-              </v-btn>
-            </v-btn-toggle>
 
-            <v-btn-toggle>
-              <v-btn @click="addTag('[h1]', '[/h1]')" flat>
-                <v-icon>title</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[h2]', '[/h2]')" flat>
-                <v-icon>text_fields</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[p]', '[/p]')" flat>
-                <v-icon>format_align_justify</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[blockquote]', '[/blockquote]')" flat>
-                <v-icon>format_quote</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[notes]', '[/notes]')" flat>
-                <v-icon>notes</v-icon>
-              </v-btn>
-            </v-btn-toggle>
-
-            <v-btn-toggle>
-              <v-btn @click="addTag('[ol]', '[/ol]')" flat>
-                <v-icon>format_list_numbered</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[ul]', '[/ul]')" flat>
-                <v-icon>format_list_bulleted</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[li]', '[/li]')" flat>
-                <v-icon>format_list_numbered_rtl</v-icon>
-              </v-btn>
-            </v-btn-toggle>
-
-            <v-btn-toggle>
-              <v-btn  @click="addTag('[img]', '[/img]')" flat>
-                <v-icon>insert_photo</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[a]', '[/a]')" flat>
-                <v-icon>attach_file</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[a#]', '[/a#]')" flat>
-                <v-icon>insert_link</v-icon>
-              </v-btn>
-              <v-btn @click="addTag('[-a]', '[/-a]')" flat>
-                <v-icon>wrap_text</v-icon>
-              </v-btn>
-            </v-btn-toggle>
-          </v-flex>
-
-          <v-textarea
-            id="text"
-            name="description"
-            label="Description"
-            type="text"
-            v-model="description"
-            required
-            :rules="[v => !!v || 'поле обязательно для заполнения']"
-          ></v-textarea> 
+          <app-editor v-model="description" ref="Editor"></app-editor>
         </v-form>
         <v-layout>
           <v-flex xs12>
-            <img src="" width="100%">
+            <v-layout row wrap>
+              <v-flex
+                v-for="(n, i) in imageSrc"
+                :key="i"
+                :xs2="imageSrc.length%6===0"
+                :xs4="imageSrc.length%3===0"
+                :xs3="imageSrc.length%4===0 || imageSrc.length>6"
+                d-flex
+              >
+                <v-card flat tile class="d-flex">
+                  <v-img
+                    :src="n"
+                    aspect-ratio="1"
+                    class="grey lighten-2"
+                  >
+                  <v-btn flat icon fab small  @click="deleteImg(i)">
+                    <v-icon color="grey lighten-2">close</v-icon>
+                    <v-layout
+                      slot="placeholder"
+                      fill-height
+                      align-center
+                      justify-center
+                      ma-0
+                    >
+                      <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                    </v-layout>
+                </v-btn>
+                  </v-img>
+                </v-card>
+              </v-flex>
+            </v-layout>
           </v-flex>
         </v-layout>
         <v-layout>
-          <v-flex xs12>
-            <v-btn dark color="cyan" @click="upload">
-              Upload
-              <v-icon right dark>cloud_upload</v-icon>
-            </v-btn>
-            <input
-              ref="fileInput" 
-              type="file"
-              multiple
-              style="display: none;" 
-              accept="image/*"
-              @change="onFileChange"
-            >            
-          </v-flex>
-        </v-layout>
-        <v-layout>
-          <v-flex xs12>
-            <v-switch
-              color="success"
-              label="Add to Promo?"
-              v-model="promo"
-            ></v-switch>
-          </v-flex>
+          <v-switch
+            color="success"
+            label="Add to Promo?"
+            v-model="promo"
+          ></v-switch>
+          <v-spacer></v-spacer>
+          <v-btn dark class="mt-3" color="cyan" @click="upload">
+            Upload
+            <v-icon right dark>cloud_upload</v-icon>
+          </v-btn>
+          <input
+            ref="fileInput" 
+            type="file"
+            multiple
+            style="display: none;" 
+            accept="image/*"
+            @change="onFileChange"
+          >
         </v-layout>
         <v-layout row>
           <v-flex xs12>
@@ -149,6 +99,7 @@
 </template>
 
 <script>
+  import Editor from '../Editor'
   export default {
     data () {
       return {
@@ -161,47 +112,21 @@
         dateUpd: ''
       }
     },
+    components: {
+      appEditor: Editor
+    },
     computed: {
       loading () {
         return this.$store.getters.loading
       }
     },
     methods: {
-      addTag (tag1, tag2) {
-        const txt = document.querySelector('#text')
-        if (typeof txt.selectionStart === 'number') {
-          const tag = '<' + tag1 + '></' + tag2 + '>'.length
-          const value = txt.value
-          const start = txt.selectionStart
-          const end = txt.selectionEnd
-          const len = end - start
-          txt.value = value.substring(0, start) + tag1 + value.substring(start, end) + tag2 + value.substring(end)
-          txt.setSelectionRange(start + len + tag, start + len + tag)
-          this.description = txt.value
-        }
+      deleteImg (i) {
+        this.imageSrc.splice(i, 1)
       },
       createArticle () {
         if (this.$refs.form.validate() && this.image) {
-          let des = this.description
-          des = des.replace(/\[p\]/g, '<p>').replace(/\[\/p\]/g, '</p>')
-          des = des.replace(/\[h1\]/g, '<h3>').replace(/\[\/h1\]/g, '</h3>')
-          des = des.replace(/\[h2\]/g, '<h4>').replace(/\[\/h2\]/g, '</h4>')
-          des = des.replace(/\[b\]/g, '<b>').replace(/\[\/b\]/g, '</b>')
-          des = des.replace(/\[u\]/g, '<u>').replace(/\[\/u\]/g, '</u>')
-          des = des.replace(/\[ul\]/g, '<ul>').replace(/\[\/ul\]/g, '</ul>')
-          des = des.replace(/\[ol\]/g, '<ol>').replace(/\[\/ol\]/g, '</ol>')
-          des = des.replace(/\[li\]/g, '<li>').replace(/\[\/li\]/g, '</li>')
-          des = des.replace(/\[sup\]/g, '<sup>').replace(/\[\/sup\]/g, '</sup>')
-          des = des.replace(/\[sub\]/g, '<sub>').replace(/\[\/sub\]/g, '</sub>')
-          des = des.replace(/\[a\]/g, '<a href="').replace(/\[\/a\]/g, '" target="_blank">ссылка</a>')
-          des = des.replace(/\[a#\]/g, '<a name=&#34;"')
-          des = des.replace(/\[-a\]/g, '<a href=&#34;#')
-          des = des.replace(/\[notes\]/g, '<p class="notes">').replace(/\[\/notes\]/g, '</p>')
-          des = des.replace(/\[s\]/g, '<s>').replace(/\[\/s\]/g, '</s>')
-          des = des.replace(/\[blockquote\]/g, '<blockquote>').replace(/\[\/blockquote\]/g, '</blockquote>')
-          des = des.replace(/\[img\]/g, '<div><img src="').replace(/\[\/img\]/g, '"></div>')
-          this.description = des.replace(/\[i\]/g, '<i>').replace(/\[\/i\]/g, '</i>')
-
+          this.$refs.Editor.editTagDescription(this.description)
           const article = {
             title: this.title,
             description: this.description,
@@ -231,7 +156,6 @@
           reader.readAsDataURL(file)
           this.image.push(file)
         })
-        console.log(this)
       }
     }
   }

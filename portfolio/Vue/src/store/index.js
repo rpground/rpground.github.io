@@ -6,6 +6,8 @@ import diarys from './modules/diarys'
 import user from './modules/user'
 import common from './modules/common'
 import review from './modules/review'
+import base from './modules/base'
+import comment from './modules/comment'
 
 Vue.use(Vuex)
 
@@ -16,6 +18,8 @@ export default new Vuex.Store({
     diarys,
     user,
     common,
-    review
+    base,
+    review,
+    comment
   }
 })

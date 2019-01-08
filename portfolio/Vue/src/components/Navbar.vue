@@ -24,13 +24,14 @@
 
     <v-navigation-drawer app right clipped stateless
       v-model="settingsNav"
+      width="600"
     >
       <v-list dense>
         <v-list-tile @click.stop="right = !right">
-          
-      <app-tooltip></app-tooltip>  
+          <app-tooltip></app-tooltip>  
         </v-list-tile>
       </v-list>
+      <!-- <app-chat :state="diary"></app-chat> -->
     </v-navigation-drawer>
 
     <v-toolbar dark color='cyan' clipped-right clipped-left fixed app>
@@ -106,6 +107,7 @@
 
 <script>
   import Tooltip from './Tooltip'
+  import Chat from './Chat'
   export default {
     data () {
       return {
@@ -120,6 +122,10 @@
       }
     },
     computed: {
+      diary () {
+        const id = '-LSCIpSbEok_h_I95rnw'
+        return this.$store.getters.diaryById(id)
+      },
       isUserLogin () {
         return this.$store.getters.isUserLogin
       },
@@ -137,12 +143,22 @@
               ]
             },
             {
+              title: 'List',
+              icon: 'list',
+              urlArr: [
+                {title: 'Users', icon: 'add', url: '/listuser'},
+                {title: 'Games', icon: 'add', url: '/list'},
+                {title: 'Diarys', icon: 'add', url: '/listdiary'},
+                {title: 'Articles', icon: 'add', url: '/listarticle'}
+              ]
+            },
+            {
               title: 'My',
               icon: 'list',
               urlArr: [
-                {title: 'My Games', icon: 'add', url: '/list'},
-                {title: 'My Diarys', icon: 'add', url: '/listdiary'},
-                {title: 'My Articles', icon: 'add', url: '/listarticle'}
+                {title: 'My Games', icon: 'add', url: '/mylist'},
+                {title: 'My Diarys', icon: 'add', url: '/mylistdiary'},
+                {title: 'My Articles', icon: 'add', url: '/mylistarticle'}
               ]
             }
           ]
@@ -155,7 +171,8 @@
       }
     },
     components: {
-      appTooltip: Tooltip
+      appTooltip: Tooltip,
+      appChat: Chat
     }
   }
 </script>

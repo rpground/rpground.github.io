@@ -1,14 +1,14 @@
 import * as firebase from 'firebase'
 
 class Review {
-  constructor (reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, productId, done = false, id = null) {
+  constructor (reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, ownerId, done = false, id = null) {
     this.reviewGraphic = reviewGraphic
     this.reviewGameplay = reviewGameplay
     this.reviewSound = reviewSound
     this.reviewDialog = reviewDialog
     this.reviewOriginal = reviewOriginal
     this.reviewGame = reviewGame
-    this.productId = productId
+    this.ownerId = ownerId
     this.done = done
     this.id = id
   }
@@ -21,52 +21,53 @@ export default {
   mutations: {
     loadReview (state, payload) {
       state.reviews = payload
+    },
+    addReview (state, payload) {
+      state.comments[payload.productId][payload.id] = payload
     }
   },
   actions: {
-    async addReview ({commit}, {reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, productId, ownerId}) {
-      const review = new Review(reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, productId)
+    async addReview ({commit, getters}, {reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, productId}) {
       commit('clearError')
+      const ownerId = await getters.user.id
+      const newReview = new Review(reviewGraphic, reviewGameplay, reviewSound, reviewDialog, reviewOriginal, reviewGame, ownerId || null)
       try {
-        await firebase.database().ref(`/users/${ownerId}/reviews`).push(review)
+        await firebase.database().ref(`reviews/${productId}/${ownerId}`).set(newReview)
+        commit('addReview', {
+          ...newReview,
+          id: ownerId
+        })
       } catch (error) {
         commit('setError', error.message)
         throw error
       }
     },
-    async fetchReview ({commit, getters}) {
-      commit('setLoading', true)
+    async fetchReview ({commit}) {
       commit('clearError')
       const resultReview = []
       try {
-        const fbVal = await firebase.database().ref(`/users/${getters.user.id}/reviews`).once('value')
-        const reviews = fbVal.val()
+        const reviewVal = await firebase.database().ref(`reviews`).once('value')
+        const reviews = reviewVal.val()
+        if (reviews === null) return
         Object.keys(reviews).forEach(key => {
           const review = reviews[key]
-          resultReview.push(new Review(
-            review.reviewGraphic,
-            review.reviewGameplay,
-            review.reviewSound,
-            review.reviewDialog,
-            review.reviewOriginal,
-            review.reviewGame,
-            review.productId,
-            review.done,
-            key))
+          Object.keys(review).forEach(keys => {
+            review[keys] = new Review(
+              review[keys].reviewGraphic,
+              review[keys].reviewGameplay,
+              review[keys].reviewSound,
+              review[keys].reviewDialog,
+              review[keys].reviewOriginal,
+              review[keys].reviewGame,
+              review[keys].ownerId,
+              review[keys].done,
+              review[keys].id,
+              keys
+            )
+          })
+          resultReview[key] = review
         })
         commit('loadReview', resultReview)
-        commit('setLoading', false)
-      } catch (error) {
-        commit('setError', error.message)
-        commit('setLoading', false)
-      }
-    },
-    async markOrderDone ({commit, getters}, payload) {
-      commit('clearError')
-      try {
-        await firebase.database().ref(`/users/${getters.user.id}/reviews`).child(payload).update({
-          done: true
-        })
       } catch (error) {
         commit('setError', error.message)
         throw error
@@ -82,6 +83,11 @@ export default {
     },
     reviews (state, getters) {
       return getters.undoneReview.concat(getters.doneReview)
+    },
+    reviewById (state) {
+      return reviewId => {
+        return state.reviews ? state.reviews[reviewId] : null
+      }
     }
   }
 }

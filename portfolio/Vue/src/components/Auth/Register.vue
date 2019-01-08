@@ -12,10 +12,17 @@
               <v-form ref="form" v-model="valid" lazy-validation>
                 <v-text-field 
                   prepend-icon="person"
-                  name="nickname"
-                  label="Nickname"
+                  name="nick"
+                  label="Nick"
                   type="text"
-                  v-model="Nickname"
+                  v-model="nick"
+                ></v-text-field>
+                <v-text-field 
+                  prepend-icon="person"
+                  name="city"
+                  label="City"
+                  type="text"
+                  v-model="city"
                 ></v-text-field>
                 <v-text-field 
                   prepend-icon="email"
@@ -68,6 +75,8 @@ export default {
     return {
       email: '',
       password: '',
+      nick: '',
+      city: '',
       confirmPassword: '',
       valid: false,
       emailRules: [
@@ -96,11 +105,13 @@ export default {
         const user = {
           email: this.email,
           password: this.password,
-          nickname: this.nickname
+          nick: this.nick,
+          city: this.city,
+          ava: 'http://cdn.seasonvar.ru/images/fav/favicon.ico'
         }
         this.$store.dispatch('registerUser', user)
         .then(() => {
-          this.$router.push('/')
+          this.$router.push('/listuser')
         })
         .catch(() => {})
       }

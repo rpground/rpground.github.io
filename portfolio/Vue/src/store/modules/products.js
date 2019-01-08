@@ -37,7 +37,7 @@ export default {
       product.title = title
       product.description = description
     },
-    updateRating (state, {rating, id}) {
+    updateRatingProduct (state, {rating, id}) {
       const product = state.products.find(a => {
         return a.id === id
       })
@@ -109,21 +109,22 @@ export default {
         throw error
       }
     },
-    async updateRating ({commit}, {rating, id}) {
+    async updateRatingProduct ({commit, getters}, {value, rating, id}) {
       commit('clearError')
-      commit('setLoading', true)
+      const user = await getters.user.id
+      const ratingValues = rating.map(function (el) {
+        return el.user
+      })
+      if (ratingValues.includes(user)) {
+        rating[ratingValues.indexOf(user)].value = value
+      } else {
+        rating.push({value: value, user: user})
+      }
       try {
-        await firebase.database().ref('products').child(id).update({
-          rating
-        })
-        commit('updateRating', {
-          rating,
-          id
-        })
-        commit('setLoading', false)
+        await firebase.database().ref('products').child(id).update({ rating })
+        commit('updateRatingProduct', {rating, id})
       } catch (error) {
         commit('setError', error.message)
-        commit('setLoading', false)
         throw error
       }
     },
@@ -174,6 +175,7 @@ export default {
       })
     },
     myProducts (state, getters) {
+      if (!getters.user) return
       return state.products.filter(product => {
         return product.ownerId === getters.user.id
       })

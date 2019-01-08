@@ -4,12 +4,15 @@ import AuthGuard from './auth-guard'
 import Home from '@/components/Home'
 import Article from '@/components/Articles/Article'
 import ArticleList from '@/components/Articles/ArticleList'
+import MyArticleList from '@/components/Articles/MyArticleList'
 import NewArticle from '@/components/Articles/NewArticle'
 import Diary from '@/components/Diarys/Diary'
 import DiaryList from '@/components/Diarys/DiaryList'
+import MyDiaryList from '@/components/Diarys/MyDiaryList'
 import NewDiary from '@/components/Diarys/NewDiary'
 import Product from '@/components/Products/Product'
 import ProductList from '@/components/Products/ProductList'
+import MyProductList from '@/components/Products/MyProductList'
 import NewProduct from '@/components/Products/NewProduct'
 import Checkout from '@/components/User/Checkout'
 import ErrorCmp from '@/components/Error'
@@ -17,8 +20,8 @@ import Login from '@/components/Auth/Login'
 import Register from '@/components/Auth/Register'
 import Tooltip from '@/components/Tooltip'
 import Summ from '@/components/Summ'
-import AddTag from '@/components/AddTag'
 import User from '@/components/User'
+import UserList from '@/components/User/UserList'
 
 Vue.use(Router)
 
@@ -33,11 +36,6 @@ export default new Router({
       path: '',
       name: 'Tooltip',
       component: Tooltip
-    },
-    {
-      path: '',
-      name: 'addtag',
-      component: AddTag
     },
     {
       path: '',
@@ -63,6 +61,12 @@ export default new Router({
       beforeRouteEnter: AuthGuard
     },
     {
+      path: '/mylist',
+      name: 'mylist',
+      component: MyProductList,
+      beforeRouteEnter: AuthGuard
+    },
+    {
       path: '/new',
       name: 'new',
       component: NewProduct,
@@ -79,6 +83,12 @@ export default new Router({
       path: '/listarticle',
       name: 'listarticle',
       component: ArticleList,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/mylistarticle',
+      name: 'mylistarticle',
+      component: MyArticleList,
       beforeRouteEnter: AuthGuard
     },
     {
@@ -101,6 +111,12 @@ export default new Router({
       beforeRouteEnter: AuthGuard
     },
     {
+      path: '/mylistdiary',
+      name: 'mylistdiary',
+      component: MyDiaryList,
+      beforeRouteEnter: AuthGuard
+    },
+    {
       path: '/newdiary',
       name: 'newdiary',
       component: NewDiary,
@@ -110,6 +126,12 @@ export default new Router({
       path: '/checkout',
       name: 'checkout',
       component: Checkout,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/listuser',
+      name: 'listuser',
+      component: UserList,
       beforeRouteEnter: AuthGuard
     },
     {

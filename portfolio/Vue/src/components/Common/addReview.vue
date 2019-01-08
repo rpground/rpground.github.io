@@ -98,7 +98,6 @@
       onSave () {
         if (this.reviewGame !== '') {
           this.localLoading = true
-          console.log(this.product.ownerId)
           this.$store.dispatch('addReview', {
             reviewGraphic: this.reviewGraphic,
             reviewGameplay: this.reviewGameplay,
@@ -124,3 +123,10 @@
     }
   }
 </script>
+
+<style scoped>
+  >>> .v-card__text {
+    overflow-y: scroll;
+    max-height: 600px; 
+  }
+</style>
