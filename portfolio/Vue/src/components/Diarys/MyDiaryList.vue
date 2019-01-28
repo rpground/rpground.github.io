@@ -4,7 +4,7 @@
       <v-timeline-item
         v-for="(diary, i) in myDiary"
         :key="i"
-        color="cyan lighten-2"
+        color="primary lighten-2"
         large
       >
         <span slot="opposite">{{ diary.dateUpd.slice(0, 10) }}</span>
@@ -37,7 +37,7 @@
                 <v-btn
                   flat
                   dark
-                  color="cyan"
+                  color="primary"
                   outline
                   :to="'/diary/'+diary.id"
                 >Подробнее</v-btn>
@@ -58,7 +58,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>

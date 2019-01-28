@@ -21,7 +21,7 @@
       <span>{{ myRatingText }}</span>
     </v-tooltip>
     <v-spacer class="xs-display"></v-spacer>
-    <v-btn color="cyan" dark flat @click.native="editRating" v-if="!isOwner">Голосовать</v-btn>
+    <v-btn color="primary" dark flat @click.native="editRating" v-if="!isOwner">Голосовать</v-btn>
   </v-card-actions>
 </template>
 

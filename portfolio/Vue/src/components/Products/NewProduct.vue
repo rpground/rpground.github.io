@@ -2,7 +2,7 @@
   <v-container>
     <v-layout row v-if="!loading">
       <v-flex xs12 sm8 offset-sm2>
-        <h1 color="cyan">Create New Product</h1>            
+        <h1 color="primary">Добавить новую игру</h1>            
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field
             name="title"
@@ -103,7 +103,7 @@
             :max="100"
             :min="0"
             thumb-label="always"
-            color="cyan"
+            color="primary"
             v-model="prepared"
             required
           ></v-slider>
@@ -243,26 +243,96 @@
             </v-slide-x-reverse-transition>
           </v-autocomplete>
 
-          <v-autocomplete
-            id="trophys"
-            :items="base.trophys"
-            v-model="trophy"
-            label="Участие в конкурсах/призовые места:"
-            persistent-hint
-            multiple
-            return-object
-          >
-            <v-slide-x-reverse-transition
-              slot="append-outer"
-              mode="out-in"
+          <v-layout row>
+            <v-flex xs7>
+              <v-autocomplete
+                id="trophys"
+                :items="base.trophys"
+                v-model="trophyName"
+                label="Участие в конкурсах/призовые места:"
+                persistent-hint
+                return-object
+              >
+                <v-slide-x-reverse-transition
+                  slot="append-outer"
+                  mode="out-in"
+                >
+                  <v-icon
+                    color="success"
+                    v-text="trophyName && trophyName.length !== 0 ? 'done_outline' : 'add_circle'"
+                    @click="addElement('trophys')"
+                  ></v-icon>
+                </v-slide-x-reverse-transition>
+              </v-autocomplete>
+            </v-flex>
+            <v-flex xs2 offset-xs1>
+              <v-autocomplete
+                :items="base.Month"
+                v-model="trophyMonth"
+                label="месяц: "
+                persistent-hint
+                return-object
+              ></v-autocomplete>
+            </v-flex>
+
+            <v-flex xs2 offset-xs1>
+              <v-text-field
+                label="год: "
+                type="number"
+                required
+                v-model="trophyYear"
+              ></v-text-field>
+            </v-flex>           
+
+            <v-flex xs2 offset-xs1>
+              <v-text-field
+                label="место: "
+                type="number"
+                required
+                v-model="trophyPos"
+              >
+              <v-slide-x-reverse-transition
+                slot="append-outer"
+                mode="out-in"
+              >
+                <v-icon
+                  color="success"
+                  v-text="'add_box'"
+                  @click="addTrophy(trophyName, trophyPos, trophyMonth, trophyYear)"
+                ></v-icon>
+              </v-slide-x-reverse-transition>
+              </v-text-field>
+            </v-flex>
+          </v-layout>
+
+          <v-flex xs8>
+            <v-list-tile
+              v-for="(item, k) in trophy"
+              :key="k"
             >
-              <v-icon
-                color="success"
-                v-text="trophy && trophy.length !== 0 ? 'done_outline' : 'add_circle'"
-                @click="addElement('trophys')"
-              ></v-icon>
-            </v-slide-x-reverse-transition>
-          </v-autocomplete>
+              <v-list-tile-action>
+                <v-icon
+                  :color="(item.pos == 1) ? 'yellow' : (item.pos == 2) ? 'grey' : (item.pos == 3) ? 'orange' : 'brown'"
+                  v-html="'filter_'+item.pos"
+                >
+                </v-icon>
+              </v-list-tile-action>
+
+              <v-list-tile-content>
+                <v-list-tile-title v-html="item.name"></v-list-tile-title>
+              </v-list-tile-content>
+
+              <v-list-tile-action>
+                <v-icon
+                  color="red"
+                  v-html="'delete'"
+                  @click="deleteTrophy(k)"
+                >
+                </v-icon>
+              </v-list-tile-action>
+
+            </v-list-tile>
+          </v-flex>
 
           <v-text-field
             name="site"
@@ -322,7 +392,7 @@
             v-model="promo"
           ></v-switch>
           <v-spacer></v-spacer>
-          <v-btn dark class="mt-3" color="cyan" @click="upload">
+          <v-btn dark class="mt-3" color="primary" @click="upload">
             Скриншоты
             <v-icon right dark>cloud_upload</v-icon>
           </v-btn>
@@ -341,7 +411,7 @@
             :disabled="!valid || !image"
             class="success"
             @click="createProduct"
-          >Create Product</v-btn>
+          >Добавить игру</v-btn>
         </v-layout>                
       </v-flex>
     </v-layout>
@@ -351,7 +421,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>
@@ -369,9 +439,9 @@
   export default {
     data () {
       return {
+        isEditing: false,
         title: '',
         engine: '',
-        isEditing: false,
         author: null,
         genre: '',
         setting: '',
@@ -390,10 +460,14 @@
         music: null,
         script: null,
         story: null,
-        trophy: null,
+        trophyName: null,
+        trophyMonth: null,
+        trophyYear: null,
+        trophyPos: null,
         site: null,
         download: null,
         valid: false,
+        trophy: [],
         dateUpd: ''
       }
     },
@@ -406,13 +480,23 @@
       }
     },
     methods: {
+      deleteTrophy (i) {
+        this.trophy.splice(i, 1)
+      },
+      addTrophy (name, pos, month, year) {
+        console.log(this.$vuetify.theme.primary)
+        if (name && pos) {
+          this.trophy.push({name: name, pos: pos, month: month, year: year})
+          this.trophyName = null
+          this.trophyPos = null
+          this.trophyMonth = null
+          this.trophyYear = null
+        }
+      },
       addElement (id) {
-        console.log(this.feature)
         const el = document.querySelector('#' + id)
         if (!(id in this.base)) this.base[id] = []
         if (el.value) this.base[id].push(el.value)
-        console.log(this.base[id])
-        console.log(id, el.value)
         this.$store.dispatch('updateBase', {el: id, payload: this.base[id]})
       },
       deleteImg (i) {
@@ -420,19 +504,28 @@
       },
       createProduct () {
         if (this.$refs.form.validate() && this.image) {
-          // logic
           const product = {
             title: this.title,
             author: this.author,
             engine: this.engine,
             genre: this.genre,
             setting: this.setting,
-            date: this.date,
+            feature: this.feature,
             description: this.description,
+            date: this.date,
+            dateEnd: this.dateEnd,
+            dateUpd: new Date().toISOString().slice(0, 19).replace(/T/g, ' ').replace(/-/g, '.'),
+            graphic: this.graphic,
+            graphicstyle: this.graphicstyle,
+            music: this.music,
+            script: this.script,
+            story: this.story,
+            trophy: this.trophy,
+            site: this.site,
+            download: this.download,
             prepared: this.prepared,
-            promo: this.promo,
             image: this.image,
-            dateUpd: new Date().toISOString().slice(0, 19).replace(/T/g, ' ').replace(/-/g, '.')
+            promo: this.promo
           }
 
           this.$store.dispatch('createProduct', product)

@@ -4,7 +4,7 @@
       <v-layout align-center justify-center>
         <v-flex xs12 sm8 md6>
           <v-card class="elevation-12">
-            <v-toolbar dark color="cyan">
+            <v-toolbar dark color="primary">
               <v-toolbar-title>Registration form</v-toolbar-title>
               
             </v-toolbar>
@@ -54,7 +54,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn 
-                color="cyan"
+                color="primary"
                 @click="onSubmit"
                 :loading="loading"
                 :disabled="!valid || loading"

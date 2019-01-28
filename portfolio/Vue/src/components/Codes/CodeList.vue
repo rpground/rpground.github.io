@@ -1,30 +1,30 @@
 <template>
   <div>
     <v-container grid-list-lg>
-      <v-layout row wrap v-if="!loading && articles.length !== 0">
+      <v-layout row wrap v-if="!loading && codes.length !== 0">
         <v-flex
           xs12
           sm6
           md4
-          v-for="(article, i) in articles"
+          v-for="(code, i) in codes"
           :key="i"
         >
           <v-card>
             <v-carousel height="200px">
               <router-link
-                :aria-label="article.title"
-                :to="'/article/'+article.id"
+                :aria-label="code.title"
+                :to="'/code/'+code.id"
               >
                 <v-img
-                  :src="(articles[i].imageSrc[0]) ? articles[i].imageSrc[0] : 'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
-                ></v-img>
+                  :src="(codes[i].imageSrc[0]) ? codes[i].imageSrc[0] : 'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
+                ></v-img> 
               </router-link>
             </v-carousel>
 
             <v-card-title primary-title>
               <div>
-                <h3 class="mb-0">{{ article.title }}</h3>
-                <div v-html="article.description.substring(0,200)"></div>
+                <h3 class="mb-0">{{ code.title }}</h3>
+                <div v-html="code.description.substring(0,200)"></div>
               </div>
             </v-card-title>
 
@@ -34,16 +34,16 @@
                 dark
                 color="primary"
                 outline
-                :to="'/article/'+article.id"
+                :to="'/code/'+code.id"
               >Подробнее</v-btn>
               <v-btn flat color="orange">Explore</v-btn>
             </v-card-actions>
           </v-card>
         </v-flex>
       </v-layout>
-      <v-layout v-else-if="!loading && articles.length === 0">
+      <v-layout v-else-if="!loading && codes.length === 0">
         <v-flex xs12 class="text-xs-center">
-          <h1 class="text--primary">You have no articles</h1>
+          <h1 class="text--primary">You have no codes</h1>
         </v-flex>
       </v-layout>
       <v-layout v-else>
@@ -64,8 +64,8 @@
 <script>
 export default {
   computed: {
-    articles () {
-      return this.$store.getters.articles
+    codes () {
+      return this.$store.getters.codes
     },
     loading () {
       return this.$store.getters.loading

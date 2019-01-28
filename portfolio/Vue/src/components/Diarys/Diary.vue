@@ -51,7 +51,7 @@
     <v-progress-circular
       :size="50"
       :width="4"
-      color="cyan"
+      color="primary"
       indeterminate
     ></v-progress-circular>        
   </v-container>

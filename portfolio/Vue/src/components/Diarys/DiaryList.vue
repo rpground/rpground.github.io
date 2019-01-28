@@ -4,11 +4,11 @@
       <v-timeline-item
         v-for="(diary, i) in diarys"
         :key="i"
-        color="cyan lighten-2"
+        color="primary lighten-2"
         large
       >
         <div slot="opposite">
-          <span class="headline font-weight-bold cyan--text">
+          <span class="headline font-weight-bold primary--text">
             {{users.find(user => user.id === diary.ownerId).nick}}
           </span>
           <div class="grey--text">{{ diary.dateUpd.slice(0, 10) }}</div>
@@ -21,11 +21,9 @@
                   :aria-label="diary.title"
                   :to="'/diary/'+diary.id"
                 >
-                  <v-carousel-item
-                    v-for="(imageSrc, k) in diarys[i].imageSrc"
-                    :key="k"
-                    :src="imageSrc"
-                  ></v-carousel-item> 
+                  <v-img
+                    :src="(diarys[i].imageSrc[0]) ? diarys[i].imageSrc[0] :'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
+                  ></v-img> 
                 </router-link>
               </v-carousel>
 
@@ -48,7 +46,7 @@
                   small
                   dark
                   outline
-                  color="cyan"
+                  color="primary"
                   :to="'/diary/'+diary.id"
                 >Подробнее</v-btn>
                 <v-btn flat color="orange">Explore</v-btn>
@@ -68,7 +66,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>

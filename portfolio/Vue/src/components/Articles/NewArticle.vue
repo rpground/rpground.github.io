@@ -2,7 +2,7 @@
   <v-container>
     <v-layout row v-if="!loading">
       <v-flex xs12 sm8 offset-sm2>
-        <h1 color="cyan">Create New Article</h1>            
+        <h1 color="primary">Добавить новую статью</h1>            
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field
             name="title"
@@ -14,7 +14,7 @@
           ></v-text-field>
           <img src="">
 
-          <app-editor v-model="description" ref="Editor"></app-editor>
+          <app-editor typeEditor="article" v-model="description" ref="Editor"></app-editor>
         </v-form>
         <v-layout>
           <v-flex xs12>
@@ -58,7 +58,7 @@
             v-model="promo"
           ></v-switch>
           <v-spacer></v-spacer>
-          <v-btn dark class="mt-3" color="cyan" @click="upload">
+          <v-btn dark class="mt-3" color="primary" @click="upload">
             Upload
             <v-icon right dark>cloud_upload</v-icon>
           </v-btn>
@@ -90,7 +90,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>

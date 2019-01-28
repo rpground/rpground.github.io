@@ -1,21 +1,31 @@
 import * as firebase from 'firebase'
 
 class Product {
-  constructor (title, author, engine, genre, setting, date, description, imageSrc = '', ownerId, rating, prepared, promo = false, dateUpd = null, id = null) {
+  constructor (title, author, engine, genre, setting, feature, description, date, dateEnd, dateUpd, graphic, graphicstyle, music, script, story, trophy, site, download, prepared, promo, ownerId, id = null, imageSrc = '', rating = 0) {
     this.title = title
     this.author = author
     this.engine = engine
     this.genre = genre
     this.setting = setting
-    this.date = date
+    this.feature = feature
     this.description = description
+    this.date = date
+    this.dateEnd = dateEnd
+    this.dateUpd = dateUpd
+    this.graphic = graphic
+    this.graphicstyle = graphicstyle
+    this.music = music
+    this.script = script
+    this.story = story
+    this.trophy = trophy
+    this.site = site
+    this.download = download
     this.prepared = prepared
     this.promo = promo
-    this.imageSrc = imageSrc
     this.ownerId = ownerId
-    this.rating = rating
-    this.dateUpd = dateUpd
     this.id = id
+    this.imageSrc = imageSrc
+    this.rating = rating
   }
 }
 
@@ -57,18 +67,26 @@ export default {
           payload.engine,
           payload.genre,
           payload.setting,
-          payload.date,
+          payload.feature,
           payload.description,
-          '',
-          ownerId || null,
-          0,
+          payload.date,
+          payload.dateEnd,
+          payload.dateUpd,
+          payload.graphic,
+          payload.graphicstyle,
+          payload.music,
+          payload.script,
+          payload.story,
+          payload.trophy,
+          payload.site,
+          payload.download,
           payload.prepared,
           payload.promo,
-          payload.dateUpd
+          ownerId || null
         )
         const product = await firebase.database().ref('products').push(newProduct)
         const imageSrc = []
-        // ok
+
         for (const i in await Promise.all(images)) {
           const image = images[i]
           const fileData = await firebase.storage().ref(`products/${product.key}${image.name}`).put(image)
@@ -80,7 +98,6 @@ export default {
         commit('createProduct', {
           ...newProduct,
           id: product.key,
-          rating: 0,
           imageSrc
         })
       } catch (error) {
@@ -144,15 +161,25 @@ export default {
               product.engine,
               product.genre,
               product.setting,
-              product.date,
+              product.feature,
               product.description,
-              product.imageSrc,
-              product.ownerId,
-              product.rating,
+              product.date,
+              product.dateEnd,
+              product.dateUpd,
+              product.graphic,
+              product.graphicstyle,
+              product.music,
+              product.script,
+              product.story,
+              product.trophy,
+              product.site,
+              product.download,
               product.prepared,
               product.promo,
-              product.dateUpd,
-              key
+              product.ownerId,
+              key,
+              product.imageSrc,
+              product.rating
             )
           )
           commit('loadProducts', resultProducts)

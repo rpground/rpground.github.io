@@ -1,9 +1,8 @@
 <template>
   <div v-if="!loading">
     <v-parallax
-      id="first"
       height="500"
-      :src="(article.imageSrc[0]) ? article.imageSrc[0] :'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
+      :src="(code.imageSrc[0]) ? code.imageSrc[0] :'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
     >
       <v-layout
         class="bgdark"
@@ -11,8 +10,8 @@
         column
         justify-center
       >
-        <h1 class="display-3 mb-3">{{ article.title }}</h1>
-        <h4 class="subheading">{{ (article.tag) ? article.tag : '' }}</h4>
+        <h1 class="display-3 mb-3">{{ code.title }}</h1>
+        <h4 class="subheading">{{ (code.tag) ? code.tag : '' }}</h4>
       </v-layout>
     </v-parallax>
 
@@ -21,29 +20,29 @@
         <v-btn flat color="green" href="#editor">перейти к комментариям</v-btn>
       </v-flex>
       <v-flex sm6 xs12>
-        <app-rating-article :article="article"></app-rating-article>
+        <app-rating-code :code="code"></app-rating-code>
       </v-flex>
     </v-layout>
 
     <v-container>
       <v-flex offset-sm2 sm8 xs12>
-        <app-user :id="article.ownerId"></app-user>
+        <app-user :id="code.ownerId"></app-user>
         <v-card-title primary-title>
           <div v-if="isOwner" xs12 md8>
-            <h1>{{ article.title }}</h1>
-            <div class="post-data mb-3 mt-1">{{article.dateUpd}}</div>
+            <h1>{{ code.title }}</h1>
+            <div class="post-data mb-3 mt-1">{{code.dateUpd}}</div>
           </div>
           <div v-else xs12 md12>
-            <h1>{{ article.title }}</h1>
-            <div class="post-data mb-3 mt-1">{{article.dateUpd}}</div>
+            <h1>{{ code.title }}</h1>
+            <div class="post-data mb-3 mt-1">{{code.dateUpd}}</div>
           </div>
           <v-spacer></v-spacer>
           <div v-if="isOwner" xs12 md4>
-            <app-edit-article :article="article"></app-edit-article>   
+            <app-edit-code :code="code"></app-edit-code>   
           </div>
         </v-card-title>
 
-        <div id="article" class="content card mb-4" v-html="article.description"></div>
+        <div id="code" class="content card mb-4" v-html="code.description"></div>
 
         <v-divider light></v-divider>
 
@@ -52,10 +51,10 @@
             <v-btn flat color="green" href="#first">перейти в начало</v-btn>
           </v-flex>
           <v-flex sm8 xs12>
-            <app-rating-article :article="article"></app-rating-article>
+            <app-rating-code :code="code"></app-rating-code>
           </v-flex>
         </v-layout>
-        <app-comment :state="article"></app-comment>
+        <app-comment :state="code"></app-comment>
       </v-flex>
     </v-container>
   </div>
@@ -72,25 +71,25 @@
 <script>
 import User from '../User'
 import Comment from '../Comment'
-import EditArticle from './EditArticle'
-import RatingArticle from './RatingArticle'
+import EditCode from './EditCode'
+import RatingCode from './RatingCode'
 export default {
   props: ['id'],
   computed: {
-    article () {
+    code () {
       const id = this.id
-      return this.$store.getters.articleById(id)
+      return this.$store.getters.codeById(id)
     },
     loading () {
       return this.$store.getters.loading
     },
     isOwner () {
-      return this.article.ownerId === this.$store.getters.user.id
+      return this.code.ownerId === this.$store.getters.user.id
     }
   },
   components: {
-    appEditArticle: EditArticle,
-    appRatingArticle: RatingArticle,
+    appEditCode: EditCode,
+    appRatingCode: RatingCode,
     appUser: User,
     appComment: Comment
   }
@@ -98,6 +97,14 @@ export default {
 </script>
 
 <style scoped>
+  .bgdark{
+    background-color:rgba(0,0,0,.5);
+    height:100%;
+    position:absolute;
+    width:100%;
+    top:0;
+    left:0;
+  }
   .content {
     font-family:  medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,serif;
     font-weight: 400;
@@ -108,21 +115,13 @@ export default {
     color: #333;
     overflow-x: hidden;
   }
-  .bgdark{
-    background-color:rgba(0,0,0,.5);
-    height:100%;
-    position:absolute;
-    width:100%;
-    top:0;
-    left:0;
-  }
   .content >>> h1 {
     font-family: 'Oranienbaum';
     font-size: 36px;
     line-height: 38px;
     font-weight: 700;
   }
-  .content >>>  ol, #article >>>  ul {
+  .content >>>  ol, #code >>>  ul {
     /*padding-left: 2em;*/
   }
   .content >>>  h3{

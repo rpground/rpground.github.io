@@ -1,7 +1,7 @@
 <template>
-  <v-layout v-if="!loading">
+  <v-layout v-if="!loading" id="user">
     <div class="user-avatar">
-      <img :src="user.ava">
+      <img :src="(user.ava) ? user.ava : 'https://hornews.com/upload/images/blank-avatar.jpg.pagespeed.ce.wNn5al6jUr.jpg'">
     </div>
     <div class="user-info">
       <h2>{{ user.nick }}</h2>
@@ -15,7 +15,7 @@
     <v-progress-circular
       :size="50"
       :width="4"
-      color="cyan"
+      color="primary"
       indeterminate
     ></v-progress-circular>        
   </v-container>
@@ -37,13 +37,6 @@
 </script>
 
 <style scoped>
-  .user{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content:flex-start;
-    line-height: 1;
-    width: 100%;
-  }
   .user-avatar{
     width: 110px;
     height: 110px;
@@ -62,10 +55,9 @@
   }
   .user-city, .user-data,.user-button{
     opacity: .54;
-    font-size: 16px;
   }
   .user-data{
-    font-size: 12px;
+    font-size: .75;
     margin-top: 12px;
   }
   .user-button{
@@ -76,7 +68,7 @@
     border: 1px solid #03a87c;
     border-radius: 4px;
     color: #03a87c;
-    font-size: 12px;
+    font-size: .75;
     line-height: 20px;
     cursor: pointer;
   }

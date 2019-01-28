@@ -1,7 +1,7 @@
 <template>
   <v-footer
     height="auto"
-    color="cyan"
+    color="primary"
   >
     <v-layout
       justify-center
@@ -18,7 +18,7 @@
         {{ link }}
       </v-btn>
       <v-flex
-        color="cyan"
+        color="primary"
         py-3
         text-xs-center
         white--text

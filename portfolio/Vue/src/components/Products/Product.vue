@@ -1,18 +1,48 @@
 <template>
   <div v-if="!loading">
+    <v-parallax
+      id="first"
+      height="500"
+      :src="(product.imageSrc[0]) ? product.imageSrc[0] :'https://firebasestorage.googleapis.com/v0/b/gamebase-b0d78.appspot.com/o/articles%2F-LWwfGu44xazSFB64gbxRPG-Maker-MV.jpg?alt=media&token=09bd62bc-c8bb-4cb5-a1a9-ae2ad8a03f12'"
+    >
+      <v-layout
+        class="bgdark"
+        align-center
+        column
+        justify-center
+      >
+        <h1 class="display-3 mb-3">{{ product.title }}</h1>
+        <h4 class="subheading">{{ (product.tag) ? product.tag : '' }}</h4>
+      </v-layout>
+    </v-parallax>
     <v-flex xs12>
-      <v-card color="cyan darken-2" class="white--text">
+      <v-card color="primary darken-2" class="white--text">
         <v-layout row wrap>
-          <v-flex md6 xs12 class="pt-0 pb-0">
-            <v-carousel>
-              <v-carousel-item
-                v-for="(imageSrc, k) in product.imageSrc"
-                :key="k"
-                :src="imageSrc"
-              ></v-carousel-item>
-            </v-carousel>
+
+          
+        </v-layout>
+        <v-divider light></v-divider>
+        <div class="userProduct" style="font-size: 22px">
+          <app-user :id="product.ownerId"></app-user>            
+        </div>
+        <v-layout row wrap>
+          <v-flex sm6 xs12> 
+            <div class="mt-2">
+              <app-edit-product :product="product" v-if="isOwner"></app-edit-product>
+              <v-spacer></v-spacer>
+              <!-- <app-add-review :product="product"  v-if="!isOwner && isReviewOwner"></app-add-review> -->
+              <app-add-review :product="product"  v-if="!isOwner"></app-add-review>
+            </div>
           </v-flex>
-          <v-flex md6 xs12>
+          <v-flex sm6 xs12> 
+            <app-rating-product :product="product"></app-rating-product>
+          </v-flex>
+        </v-layout>
+      </v-card>
+    </v-flex>
+    <v-container>
+      <v-flex offset-md2 md8 xs12>
+<v-flex xs12>
             <v-card-title primary-title>
               <div>
                 <div class="headline">{{ product.title }}</div>
@@ -50,6 +80,20 @@
                   <h3>Дата обновления: </h3>
                   <span>{{ product.date }}</span>
                 </div>
+                <div v-if="product.graphics">
+                  <h3>Графика: </h3>
+                  <span v-for="(graphic, i) in product.graphics"
+                    :key="i">
+                    <span>{{ graphic }} </span>
+                  </span>
+                </div>
+                <div v-if="product.features">
+                  <h3>Особенности: </h3>
+                  <span v-for="(feature, i) in product.features"
+                    :key="i">
+                    <span>{{ feature }} </span>
+                  </span>
+                </div>
                 <div>
                   <h3>Процент готовности: </h3>
                   <span>{{ product.prepared }} % <v-progress-linear color="orange" v-model="product.prepared"> % </v-progress-linear></span>
@@ -60,33 +104,14 @@
                 </div>
               </div>
             </v-card-title>
-          </v-flex>
-        </v-layout>
-        <v-divider light></v-divider>
-        <v-layout row wrap>
-          <v-flex sm6 xs12> 
-            <app-rating-product :product="product"></app-rating-product>
-          </v-flex>
-          <v-flex sm6 xs12> 
-            <div class="mt-2">
-              <app-edit-product :product="product" v-if="isOwner"></app-edit-product>
-              <v-spacer></v-spacer>
-              <app-add-review :product="product"  v-if="!isOwner && isReviewOwner"></app-add-review>
-            </div>
-          </v-flex>
-        </v-layout>
-      </v-card>
-    </v-flex>
-
-    <v-container>
-      <v-flex offset-md2 md8 xs12>
+          </v-flex>        
         <v-tabs
           centered
-          color="cyan"
+          color="primary"
           dark
           icons-and-text
         >
-          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tabs-slider color="orange"></v-tabs-slider>
 
           <v-tab
             v-for="(item, i) in base"
@@ -103,7 +128,7 @@
             :value="'tab-' + i"
           >
             <v-card flat class="mt-4 mb-4">
-          <app-rating-product :product="product"></app-rating-product>
+              <app-rating-product :product="product"></app-rating-product>
               <h2 class="mb-2">{{ item.name }}</h2>
               <v-flex xs12 v-if="item.name == 'Графика'" class="pt-0 pb-0">
                 <v-carousel>
@@ -155,7 +180,7 @@
     <v-progress-circular
       :size="50"
       :width="4"
-      color="cyan"
+      color="primary"
       indeterminate
     ></v-progress-circular>        
   </v-container>
@@ -174,6 +199,32 @@
   }
   >>>.v-expansion-panel__header {
     padding-left: 0;
+  }
+  .bgdark{
+    background-color:rgba(0,0,0,.5);
+    height:100%;
+    position:absolute;
+    width:100%;
+    top:0;
+    left:0;
+  }
+  .userProduct {
+    position: absolute;
+    margin-left: 40px;
+    margin-top: -135px;
+  }
+  >>>.userProduct #user .user-avatar{
+    width: 200px;
+    height: 200px;
+    flex-wrap: wrap;
+  }
+  >>>.userProduct #user .user-avatar img{
+    width: 180px;
+    height: 180px;
+    vertical-align: middle;
+    border-radius: 100%;
+    padding: 2px;
+    border: 1px solid #03a87c;
   }
 </style>
 
@@ -229,12 +280,11 @@ export default {
     isOwner () {
       return this.product.ownerId === this.$store.getters.user.id
     },
-    isReviewOwner () {
-      const review = this.$store.getters.reviewById(this.id)
-      const user = this.$store.getters.user.id
-      console.log(!!review[user])
-      return !!review[user]
-    },
+    // isReviewOwner () {
+    //   const review = this.$store.getters.reviewById(this.id)
+    //   const user = this.$store.getters.user.id
+    //   return !!review[user]
+    // },
     base () {
       return [
         {name: 'Описание', icon: 'phone', text: this.product.description, comment: this.reviews.game},

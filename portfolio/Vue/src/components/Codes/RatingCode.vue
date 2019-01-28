@@ -1,12 +1,11 @@
 <template>
   <v-card-actions class="pa-3">
-    <!-- <span class="xs-none">Рейтинг Игры</span> -->
     <v-spacer class="xs-none"></v-spacer>
     <v-tooltip bottom>
       <span class="grey--text text--lighten-1 caption mr-2 xs-none" slot="activator">
-        {{ rating.toFixed(2) }}
+        ({{ rating.toFixed(2) }})
       </span>
-      <span>рейтинг игры</span>
+      <span>рейтинг статьи</span>
     </v-tooltip>
     <v-tooltip bottom>
       <v-rating
@@ -26,25 +25,9 @@
   </v-card-actions>
 </template>
 
-<style scope>
-  @media (max-width: 600px) {
-    .xs-none {
-      display: none;
-    }
-    .v-btn__content {
-      font-size: 9px;
-    }
-  }
-  @media (min-width: 600px) {
-    .xs-display {
-      display: none;
-    }
-  }
-</style>
-
 <script>
   export default {
-    props: ['product'],
+    props: ['code'],
     data () {
       return {
         newRating: 0
@@ -52,10 +35,10 @@
     },
     computed: {
       isOwner () {
-        return this.product.ownerId === this.$store.getters.user.id
+        return this.code.ownerId === this.$store.getters.user.id
       },
       ratings () {
-        return this.product.rating ? this.product.rating : []
+        return this.code.rating ? this.code.rating : []
       },
       myRating () {
         const myRating = this.ratings.find(el => el.user === this.$store.getters.user.id)
@@ -65,7 +48,7 @@
         if (this.myRating) {
           return 'Моя оценка: ' + this.myRating
         } else {
-          return this.isOwner ? 'не могу голосовать за свою статью' : 'еще не оценил'
+          return this.isOwner ? 'не могу голосовтаь за свою статью' : 'еще не оценил'
         }
       },
       rating: {
@@ -84,12 +67,28 @@
     },
     methods: {
       editRating () {
-        this.$store.dispatch('updateRatingProduct', {
+        this.$store.dispatch('updateRatingCode', {
           value: this.newRating,
           rating: this.ratings,
-          id: this.product.id
+          id: this.code.id
         })
       }
     }
   }
 </script>
+
+<style scope>
+  @media (max-width: 600px) {
+    .xs-none {
+      display: none;
+    }
+    .v-btn__content {
+      font-size: 9px;
+    }
+  }
+  @media (min-width: 600px) {
+    .xs-display {
+      display: none;
+    }
+  }
+</style>

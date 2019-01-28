@@ -6,7 +6,7 @@
         sm8 offset-sm2
       >
         <v-card>
-          <v-toolbar color="cyan" dark>
+          <v-toolbar color="primary" dark>
             <v-toolbar-side-icon></v-toolbar-side-icon>
 
             <v-toolbar-title>Inbox</v-toolbar-title>
@@ -39,7 +39,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>

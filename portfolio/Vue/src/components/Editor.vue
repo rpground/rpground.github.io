@@ -1,126 +1,14 @@
 <template>
   <v-flex xs12>
     <v-flex xs12>
-      <v-btn-toggle multiple>
+      <v-btn-toggle v-for="(tag, i) in tags" :key="i">
         <v-tooltip bottom>
-          <v-btn @click="addTag('[b]', '[/b]')" flat slot="activator">
-            <v-icon>format_bold</v-icon>
+          <v-btn @click="addTag(`[${tag.tag}]`, `[/${tag.tag}]`)" flat slot="activator">
+            <span v-if="tag.text">{{ tag.text }}</span>
+            <v-icon>{{ tag.icon }}</v-icon>
           </v-btn>
-          <span>жирный текст</span>
+          <span>{{ tag.tooltip }}</span>
         </v-tooltip>
-        <v-tooltip bottom>
-          <v-btn @click="addTag('[i]', '[/i]')" flat slot="activator">
-            <v-icon>format_italic</v-icon>
-          </v-btn>
-          <span>курсив</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <v-btn @click="addTag('[u]', '[/u]')" flat slot="activator">
-            <v-icon>format_underlined</v-icon>
-          </v-btn>
-          <span>подчеркнутый текст</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[s]', '[/s]')" flat slot="activator">
-            <v-icon>format_clear</v-icon>
-          </v-btn>
-          <span>зачеркнутый текст</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[sub]', '[/sub]')" flat slot="activator">
-            <v-icon>vertical_align_bottom</v-icon>
-          </v-btn>
-          <span>нижний индекс</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[sup]', '[/sup]')" flat slot="activator">
-            <v-icon>vertical_align_top</v-icon>
-          </v-btn>
-          <span>верхний индекс</span>
-        </v-tooltip>
-      </v-btn-toggle>
-
-      <v-btn-toggle>
-        <v-tooltip bottom>
-          <v-btn @click="addTag('[h1]', '[/h1]')" flat slot="activator">
-            <v-icon>title</v-icon>
-          </v-btn>
-          <span>заголовок</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[h2]', '[/h2]')" flat slot="activator">
-            <v-icon>text_fields</v-icon>
-          </v-btn>
-          <span>подзаголовок</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[p]', '[/p]')" flat slot="activator">
-            <v-icon>format_align_justify</v-icon>
-          </v-btn>
-          <span>абзац</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[quote]', '[/quote]')" flat slot="activator">
-            <v-icon>format_quote</v-icon>
-          </v-btn>
-          <span>цитата</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[notes]', '[/notes]')" flat slot="activator">
-            <v-icon>notes</v-icon>
-          </v-btn>
-          <span>заметка</span>
-        </v-tooltip>
-      </v-btn-toggle>
-
-      <v-btn-toggle>
-        <v-tooltip bottom>
-          <v-btn @click="addTag('[ol]', '[/ol]')" flat slot="activator">
-            <v-icon>format_list_numbered</v-icon>
-          </v-btn>
-          <span>нумерованный список</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[ul]', '[/ul]')" flat slot="activator">
-            <v-icon>format_list_bulleted</v-icon>
-          </v-btn>
-          <span>ненумерованный список</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[li]', '[/li]')" flat slot="activator">
-            <v-icon>format_list_numbered_rtl</v-icon>
-          </v-btn>
-          <span>элемент списка</span>
-        </v-tooltip>
-
-      </v-btn-toggle>
-
-      <v-btn-toggle>
-        <v-tooltip bottom>
-          <v-btn  @click="addTag('[img]', '[/img]')" flat slot="activator">
-            <v-icon>insert_photo</v-icon>
-          </v-btn>
-        <span>ссылка на картинку</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[a]', '[/a]')" flat slot="activator">
-            <v-icon>attach_file</v-icon>
-          </v-btn>
-          <span>ссылка</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[a#]', '[/a#]')" flat slot="activator">
-            <v-icon>insert_link</v-icon>
-          </v-btn>
-          <span>якорная ссылка</span>
-        </v-tooltip>
-        <v-tooltip bottom>        
-          <v-btn @click="addTag('[-a]', '[/-a]')" flat slot="activator">
-            <v-icon>wrap_text</v-icon>
-          </v-btn>
-          <span>ссылка на якорную ссылку</span>
-        </v-tooltip>
-
       </v-btn-toggle>
     </v-flex>
     <v-flex xs12>
@@ -156,7 +44,30 @@
     data () {
       return {
         show: false,
-        description: ''
+        description: '',
+        tags: [
+          {tag: 'b', icon: 'format_bold', tooltip: 'жирный текст'},
+          {tag: 'i', icon: 'format_italic', tooltip: 'курсив'},
+          {tag: 'u', icon: 'format_underlined', tooltip: 'подчеркнутый текст'},
+          {tag: 's', icon: 'format_clear', tooltip: 'зачеркнутый текст'},
+          {tag: 'sub', icon: 'vertical_align_bottom', tooltip: 'нижний индекс'},
+          {tag: 'sup', icon: 'vertical_align_top', tooltip: 'верхний индекс'},
+          {tag: 'h1', icon: 'title', tooltip: 'заголовок'},
+          {tag: 'h2', icon: 'text_fields', tooltip: 'подзаголовок'},
+          {tag: 'p', icon: 'format_align_justify', tooltip: 'абзац'},
+          {tag: 'quote', icon: 'format_quote', tooltip: 'цитата'},
+          {tag: 'notes', icon: 'notes', tooltip: 'заметка'},
+          {tag: 'ol', icon: 'format_list_numbered', tooltip: 'нумерованный список'},
+          {tag: 'ul', icon: 'format_list_bulleted', tooltip: 'ненумерованный список'},
+          {tag: 'li', icon: 'format_list_numbered_rtl', tooltip: 'элемент списка'},
+          {tag: 'img', icon: 'insert_photo', tooltip: 'ссылка на картинку'},
+          {tag: 'a', icon: 'attach_file', tooltip: 'ссылка'},
+          {tag: 'a#', icon: 'insert_link', tooltip: 'якорная ссылка'},
+          {tag: '-a', icon: 'wrap_text', tooltip: 'ссылка на якорную ссылку'},
+          {tag: 'fiddle', icon: 'code', tooltip: 'ссылка на fiddle JS', text: 'JS'},
+          {tag: 'fiddlehtml', icon: 'code', tooltip: 'ссылка на fiddle HTML', text: 'HTML'},
+          {tag: 'fiddlecss', icon: 'code', tooltip: 'ссылка на fiddle CSS', text: 'CSS'}
+        ]
       }
     },
     computed: {
@@ -196,7 +107,10 @@
   >>> .v-card__actions{
     padding: 0;
   }
-  >>> .text_input {
+  .content >>> img, .text_input  >>> img{
+    width: 100%;
+  } 
+  >>>.text_input textarea{
     white-space: pre-wrap;
     line-height: 1.7;
     font-family:  medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,serif;
@@ -206,7 +120,15 @@
     letter-spacing: -.003em;
     color: #333;
   }
-  
+  >>>.S{color:red}/* Строки красные */
+  >>>.gly{color:green}/* Строки красные */
+  >>>.func{color:blue}/* Юзер-функции синие */
+  >>>.C{color:orange}/* Комменты оранжевые */
+  >>>.kwrd{color:pink}/* Ключевые слова полужирные */
+  >>>.methods{color:brown}/* Ключевые слова полужирные */
+  >>>.arg{color:orange}/* Ключевые слова полужирные */
+  >>>.this{color:purple}/* Ключевые слова полужирные */
+  >>>.R{color:gray} /*Серые регвыражения */
 </style>
 <!-- <script async src="//jsfiddle.net/xnjc03hy/103/embed/js,html,css,result/dark/"></script>
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/534234636&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe> -->

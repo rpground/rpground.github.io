@@ -14,7 +14,6 @@ export default {
   },
   actions: {
     async updateBase ({commit}, {el, payload}) {
-      console.log(el, payload)
       commit('clearError')
       try {
         await firebase.database().ref(`base/${el}`).set(payload)
@@ -30,7 +29,6 @@ export default {
       commit('setLoading', true)
       try {
         const base = await firebase.database().ref('base').once('value')
-        console.log(base.val())
         const resultBase = base.val()
         commit('loadBase', resultBase)
         commit('setLoading', false)

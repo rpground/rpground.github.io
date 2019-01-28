@@ -34,7 +34,7 @@
               <v-btn
                 flat
                 dark
-                color="cyan"
+                color="primary"
                 outline
                 :to="'/article/'+article.id"
               >Подробнее</v-btn>
@@ -53,7 +53,7 @@
         <v-progress-circular
           :size="50"
           :width="4"
-          color="cyan"
+          color="primary"
           indeterminate
         ></v-progress-circular>
       </v-flex>

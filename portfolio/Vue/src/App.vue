@@ -55,5 +55,12 @@
   }
   .content{
     white-space: pre-wrap;
+    line-height: 1.7;
+    font-family:  medium-content-serif-font,Georgia,Cambria,"Times New Roman",Times,serif;
+    font-weight: 400;
+    font-size: 18px;
+    font-style: normal;
+    letter-spacing: -.003em;
+    color: #333;    
   }
 </style>

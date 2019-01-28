@@ -6,6 +6,10 @@ import Article from '@/components/Articles/Article'
 import ArticleList from '@/components/Articles/ArticleList'
 import MyArticleList from '@/components/Articles/MyArticleList'
 import NewArticle from '@/components/Articles/NewArticle'
+import Code from '@/components/Codes/Code'
+import CodeList from '@/components/Codes/CodeList'
+import MyCodeList from '@/components/Codes/MyCodeList'
+import NewCode from '@/components/Codes/NewCode'
 import Diary from '@/components/Diarys/Diary'
 import DiaryList from '@/components/Diarys/DiaryList'
 import MyDiaryList from '@/components/Diarys/MyDiaryList'
@@ -95,6 +99,31 @@ export default new Router({
       path: '/newarticle',
       name: 'newarticle',
       component: NewArticle,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/code/:id',
+      props: true,
+      name: 'code',
+      component: Code,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/listcode',
+      name: 'listcode',
+      component: CodeList,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/mylistcode',
+      name: 'mylistcode',
+      component: MyCodeList,
+      beforeRouteEnter: AuthGuard
+    },
+    {
+      path: '/newcode',
+      name: 'newcode',
+      component: NewCode,
       beforeRouteEnter: AuthGuard
     },
     {

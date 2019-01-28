@@ -7,7 +7,7 @@
             <v-carousel-item
               v-for="(product, i) in promoProducts"
               :key="i"
-              :src="product.imageSrc[i]"
+              :src="product.imageSrc[0]"
               @click="toProduct(product.id)"
             ></v-carousel-item>           
           </v-carousel>
@@ -68,7 +68,7 @@
            <v-progress-circular
             :size="50"
             :width="4"
-            color="cyan"
+            color="primary"
             indeterminate
           ></v-progress-circular>
         </v-flex>

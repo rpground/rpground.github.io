@@ -5,7 +5,7 @@
         <v-progress-circular
             :size="100"
             :width="4"
-            color="cyan"
+            color="primary"
             indeterminate
         ></v-progress-circular> 
       </v-flex>      
@@ -37,7 +37,7 @@
 
             <v-list-tile-action>
               <v-btn
-                color="cyan"
+                color="primary"
                 :to="'/product/'+review.productId"
               >Open</v-btn>
             </v-list-tile-action>
